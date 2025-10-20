@@ -1,25 +1,24 @@
 const express= require('express');
-const {connectToDB, getDB} =require('./utils/db');
+const db =require('./utils/db.js');
 const  routes = require('./routers/index');
 const app = express();
 
 // server port
 const PORT=process.env.PORT|| 3000;
-let db;
 
-//
+
 
 //connect to database
-connectToDB((err)=>{
-  if(!err){
-    
-    //intialize server
+(async ()=>{
+  try{
+    await db.connect();
+    app.use(express.json())
+    app.use(routes)
     app.listen(PORT,()=>{
       console.log(`running on port ${PORT}` )
     })
-    
-    app.use(routes) 
-    db=getDB()
+  } catch(err){
+    console.error('Failed to start server, err')
   }
-})
+})()
 
