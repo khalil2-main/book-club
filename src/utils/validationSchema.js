@@ -1,7 +1,7 @@
 const { options } = require("../routers");
 
-const UserValidatorsScheama={
-  prenom:{
+const createUserValidatorsScheama={
+  name:{
     isLength:{
       options:{
         min:3
@@ -12,7 +12,7 @@ const UserValidatorsScheama={
       errorMessage:'fill the name field'
     }
   },
-  nom:{
+  surname:{
     isLength:{
       options:{
         min:3,
@@ -57,5 +57,47 @@ const UserValidatorsScheama={
     }
   }
 }
+const updateUserValidatorsScheama={
+  name:{
+    isLength:{
+      options:{
+        min:3
+      },
+      errorMessage:'name should at least contains 3 characterss'
+    }
+  },
+  surname:{
+    isLength:{
+      options:{
+        min:3,
+        
+      },
+      errorMessage:'surname should at least contains 3 characterss'
+    }
+  },
+ 
+  email:{
+    isEmail:{
+      
+      errorMessage:'invalid email foramat'
+    }
+  },
+  birthday:{
+    isISO8601:{
+      
+      errorMessage:'invalid date foramat'
+    }
+  },
+  password:{
+    isLength:{
+      options:{
+        min:8,
+        max:30
+        
+      },
+      errorMessage:'password should at least contains 8 characterss'
+    }
+  }
+}
 
-module.exports= {UserValidatorsScheama}
+module.exports= {createUserValidatorsScheama,updateUserValidatorsScheama}
