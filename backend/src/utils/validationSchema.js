@@ -1,5 +1,6 @@
 const { options } = require("../routers");
 
+
 const createUserValidatorsScheama={
   name:{
     isLength:{
@@ -55,10 +56,23 @@ const createUserValidatorsScheama={
     notEmpty:{
       errorMessage:'password is required'
     }
+  },
+  'address.location': {
+    optional: true,
+    isString: { errorMessage: 'address.location must be a string' }
+  },
+  'address.city': {
+    optional: true,
+    isString: { errorMessage: 'address.city must be a string' }
+  },
+  'address.country': {
+    optional: true,
+    isString: { errorMessage: 'address.country must be a string' }
   }
 }
 const updateUserValidatorsScheama={
   name:{
+    optional: true,
     isLength:{
       options:{
         min:3
@@ -67,6 +81,7 @@ const updateUserValidatorsScheama={
     }
   },
   surname:{
+    optional: true,
     isLength:{
       options:{
         min:3,
@@ -77,18 +92,21 @@ const updateUserValidatorsScheama={
   },
  
   email:{
+    optional: true,
     isEmail:{
       
       errorMessage:'invalid email foramat'
     }
   },
   birthday:{
+    optional: true,
     isISO8601:{
       
       errorMessage:'invalid date foramat'
     }
   },
   password:{
+    optional: true,
     isLength:{
       options:{
         min:8,
@@ -97,6 +115,19 @@ const updateUserValidatorsScheama={
       },
       errorMessage:'password should at least contains 8 characterss'
     }
+  },
+
+   'address.location': {
+    optional: true,
+    isString: { errorMessage: 'address.location must be a string' }
+  },
+  'address.city': {
+    optional: true,
+    isString: { errorMessage: 'address.city must be a string' }
+  },
+  'address.country': {
+    optional: true,
+    isString: { errorMessage: 'address.country must be a string' }
   }
 }
 
