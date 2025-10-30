@@ -131,4 +131,33 @@ const updateUserValidatorsScheama={
   }
 }
 
-module.exports= {createUserValidatorsScheama,updateUserValidatorsScheama}
+
+//auth
+const AuthUserValidatorsScheama={ 
+    email:{
+    isEmail:{
+      
+      errorMessage:'invalid email foramat'
+    },
+    notEmpty:{
+      errorMessage:'Email is required'
+    }
+  },
+  
+  password:{
+    isLength:{
+      options:{
+        min:8,
+        max:30
+        
+      },
+      errorMessage:'password should at least contains 8 characterss'
+    },
+    notEmpty:{
+      errorMessage:'password is required'
+    }
+  },
+
+}
+
+module.exports= {createUserValidatorsScheama,updateUserValidatorsScheama, AuthUserValidatorsScheama}
