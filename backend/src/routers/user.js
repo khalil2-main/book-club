@@ -2,8 +2,8 @@ const { Router } = require('express');
 const User= require('./../models/user')
 const jwt= require('jsonwebtoken')
 const {query, body, matchedData,checkSchema, validationResult}= require('express-validator')
-const {createUserValidatorsScheama,updateUserValidatorsScheama,au}= require('./../utils/validationSchema');
-const { hashPassword } = require('../utils/helpers');
+const {createUserValidatorsScheama,updateUserValidatorsScheama,au}= require('../config/validationSchema');
+const { hashPassword } = require('../config/helpers');
 const passport = require('passport');
 
 
