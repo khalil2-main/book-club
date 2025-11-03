@@ -1,26 +1,23 @@
-// db.js
-const mongoose= require('mongoose'); // or: const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-let instance = null; // holds our singleton instance
+let instance = null; // Singleton instance
 let isConnected = false;
 
 class Database {
   constructor() {
-    if (instance) return instance; // Singleton: return existing instance
+    if (instance) return instance; // Return existing instance
     instance = this;
   }
 
-  async connect(uri = 'mongodb://localhost:27017/BookClub') {
+  async connect(uri = process.env.MONGO_URI) {
     if (isConnected) {
-      console.log('✅ Already connected to MongoDB');
+      console.log('Already connected to MongoDB');
       return mongoose.connection;
     }
 
     try {
-      await mongoose.connect(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+     
+      await mongoose.connect(uri);
 
       isConnected = true;
       console.log(' MongoDB connected successfully');
@@ -33,14 +30,11 @@ class Database {
 
   getConnection() {
     if (!isConnected) {
-      throw new Error(' Database not connected');
+      throw new Error('❌ Database not connected');
     }
     return mongoose.connection;
   }
 }
 
-const dbInstance = new Database();
-;
 
-// For CommonJS
 module.exports = new Database();

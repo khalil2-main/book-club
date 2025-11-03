@@ -1,12 +1,11 @@
 const express= require('express');
-const db =require('./utils/db.js');
+const db =require('./config/db');
 const  routes = require('./routers/index');
 const cookieParser = require('cookie-parser')
-const passport = require('passport');
-require('dotenv').config();
 
-require('./utils/local-strategy.js');
-require('./utils/jwt-strategy.js');
+
+require('dotenv').config({quiet:true});
+
 const app = express();
 
 // server port
@@ -20,7 +19,7 @@ const PORT=process.env.PORT|| 3000;
     await db.connect();
     app.use(express.json());
     app.use(cookieParser())
-    app.use(passport.initialize());
+
 
     app.use(routes);
     

@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { comparePassword } = require('../utils/helpers');
+
 
 
 const addressSchema = new mongoose.Schema({
@@ -20,5 +22,16 @@ const userSchema = new mongoose.Schema({
   address: addressSchema,
   password: { type: String, required: true }
 });
+
+userSchema.statics.login= async function(email,password){
+  const user= await this.findOne({email});
+  if(!user){
+    throw  Error('incorrect Email')
+  }
+  if(!comparePassword(password,user.password)){
+    throw Error("incorrect password")
+  }
+  return user;
+}
 
 module.exports = mongoose.model('User', userSchema);
