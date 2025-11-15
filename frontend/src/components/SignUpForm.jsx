@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import Input from "./Input";
+import Input from "../components/Input";
+import { useNavigate } from "react-router";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const letterRegex=/^[\p{L}\p{M}]+$/u;
 
-const Signup = () => {
+const SignUpForm = () => {
+  const navigate= useNavigate();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -28,12 +31,18 @@ const Signup = () => {
         if (!value) return "Email is required";
         if (!emailRegex.test(value)) return "Invalid email format";
         return "";
-      case "address":
-        if (!value.trim()) return "Address is required";
-        return "";
+     case "address":
+    if (!value) return ""; 
+    if (!letterRegex.test(value)) return "Address must be letter only";
+    return "";
+
       case "city":
+        if (!value) return "";
+        if (!letterRegex.test(value)) return "city must be letter only";
+        return"";
       case "state":
-        if (!value.trim()) return "This field is required";
+        if (!value) return "";
+        if (!letterRegex.test(value)) return "state must be letter only";
         return "";
       case "password":
         if (!value) return "Password is required";
@@ -176,8 +185,11 @@ const Signup = () => {
           Sign Up
         </button>
       </form>
+      
+        <button onClick={() => navigate("../login")} className="mt-6 text-indigo-600 font-medium hover:underline transition"> Don't Already have an account? Log in</button>
+      
     </div>
   );
 };
 
-export default Signup;
+export default SignUpForm;

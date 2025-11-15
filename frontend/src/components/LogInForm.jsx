@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import Input from "./Input";
+import Input from "../components/Input";
+import { useNavigate } from "react-router";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const Login = () => {
+const LogInForm = () => {
+  const navigate=useNavigate()
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -96,8 +98,11 @@ const Login = () => {
           Log In
         </button>
       </form>
+              <button onClick={() => navigate("../signup")} className="mt-6 text-indigo-600 font-medium hover:underline transition" >
+    Don’t have an account? Sign up
+  </button>
     </div>
   );
 };
 
-export default Login;
+export default LogInForm;
