@@ -9,7 +9,7 @@ const requireAuth = require('../middlewares/auth');
 
 
 const router = Router();
- const errors= {name:'', surname:'', email:'', birthday:'', password:'',address:''}
+ const errors= {}
 const erorrHandler= (err)=>{
  
   Object.values(err.errors).forEach((properties)=>{

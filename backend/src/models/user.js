@@ -10,8 +10,8 @@ const addressSchema = new mongoose.Schema({
 }, { _id: false }); // prevent extra _id field for address
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  surname: { type: String, required: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   email: { 
     type: String, 
     required: true, 
