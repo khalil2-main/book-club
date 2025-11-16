@@ -1,5 +1,9 @@
 const jwt= require('jsonwebtoken')
+<<<<<<< HEAD
 
+=======
+const User= require('./../models/user')
+>>>>>>> frontend
 
 const requireAuth= (req,res,next)=>{
   const token=req.cookies.jwt;
@@ -22,5 +26,23 @@ const requireAuth= (req,res,next)=>{
      res.status(401).send('your token is exprired')
   }
 }
+<<<<<<< HEAD
+=======
+const adminAuth= (req,res, next)=>{
+  if(!decodedToken){
+     res.status(401).send('your token is not valid')
+  }
+  else{
+    const user= User.findById(decodedToken);
+    if(user.admin){
+      console.log('admin isconnected')
+      next();
+    }
+    else{
+      console.log("you need admin preveligace")
+    }
+  }
+}
+>>>>>>> frontend
 
 module.exports=requireAuth

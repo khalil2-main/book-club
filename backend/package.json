@@ -9,7 +9,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./src/app.js",
+<<<<<<< HEAD
     "start:dev": "nodemon ./src/app.js"
+=======
+    "dev": "nodemon ./src/app.js"
+>>>>>>> frontend
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
