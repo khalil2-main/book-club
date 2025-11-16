@@ -1,10 +1,22 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
 import { useNavigate } from "react-router";
+import axios from "axios";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const LogInForm = () => {
+  const getToken = async () => {
+    
+
+    try {
+      await axios.post("/api/login", form);
+      console.log("Sent:", form);
+      navigate("/");
+    } catch (err) {
+      console.error("Signup failed:", err);
+    }
+  };
   const navigate=useNavigate()
   const [form, setForm] = useState({
     email: "",
@@ -60,7 +72,7 @@ const LogInForm = () => {
       return;
     }
 
-    console.log("Logging in with:", form);
+    getToken()
   };
 
   return (
