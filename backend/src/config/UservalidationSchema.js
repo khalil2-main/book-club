@@ -2,24 +2,11 @@ const { options } = require("../routers");
 
 
 const createUserValidatorsScheama={
-<<<<<<< HEAD
-  name:{
-=======
   firstName:{
->>>>>>> frontend
     isLength:{
       options:{
         min:3
       },
-<<<<<<< HEAD
-      errorMessage:'name should at least contains 3 characterss'
-    },
-    notEmpty:{
-      errorMessage:'fill the name field'
-    }
-  },
-  surname:{
-=======
       errorMessage:'firstname should at least contains 3 characterss'
     },
     notEmpty:{
@@ -27,23 +14,15 @@ const createUserValidatorsScheama={
     }
   },
   lastName:{
->>>>>>> frontend
     isLength:{
       options:{
         min:3,
         
       },
-<<<<<<< HEAD
-      errorMessage:'surname should at least contains 3 characterss'
-    },
-    notEmpty:{
-      errorMessage:'fill the surname field'
-=======
       errorMessage:'lastname should at least contains 3 characterss'
     },
     notEmpty:{
       errorMessage:'fill the lastname field'
->>>>>>> frontend
     }
   },
  
@@ -92,38 +71,23 @@ const createUserValidatorsScheama={
   }
 }
 const updateUserValidatorsScheama={
-<<<<<<< HEAD
-  name:{
-=======
   firstName:{
->>>>>>> frontend
     optional: true,
     isLength:{
       options:{
         min:3
       },
-<<<<<<< HEAD
-      errorMessage:'name should at least contains 3 characterss'
-    }
-  },
-  surname:{
-=======
       errorMessage:'firstname should at least contains 3 characterss'
     }
   },
   lastName:{
->>>>>>> frontend
     optional: true,
     isLength:{
       options:{
         min:3,
         
       },
-<<<<<<< HEAD
-      errorMessage:'surname should at least contains 3 characterss'
-=======
       errorMessage:'lastName should at least contains 3 characterss'
->>>>>>> frontend
     }
   },
  

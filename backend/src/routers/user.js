@@ -9,11 +9,7 @@ const requireAuth = require('../middlewares/auth');
 
 
 const router = Router();
-<<<<<<< HEAD
- const errors= {name:'', surname:'', email:'', birthday:'', password:'',address:''}
-=======
  const errors= {}
->>>>>>> frontend
 const erorrHandler= (err)=>{
  
   Object.values(err.errors).forEach((properties)=>{
@@ -90,11 +86,8 @@ router.use(requireAuth)
     res.clearCookie('jwt');
     res.status(200).send('you have been logged out successfully')
   })
-<<<<<<< HEAD
-=======
 
 router.use(requireAuth)
->>>>>>> frontend
 // get users
 router.get('/api/users', async (req, res) => {
   try {

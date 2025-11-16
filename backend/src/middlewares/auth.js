@@ -1,9 +1,5 @@
 const jwt= require('jsonwebtoken')
-<<<<<<< HEAD
-
-=======
 const User= require('./../models/user')
->>>>>>> frontend
 
 const requireAuth= (req,res,next)=>{
   const token=req.cookies.jwt;
@@ -26,8 +22,6 @@ const requireAuth= (req,res,next)=>{
      res.status(401).send('your token is exprired')
   }
 }
-<<<<<<< HEAD
-=======
 const adminAuth= (req,res, next)=>{
   if(!decodedToken){
      res.status(401).send('your token is not valid')
@@ -43,6 +37,5 @@ const adminAuth= (req,res, next)=>{
     }
   }
 }
->>>>>>> frontend
 
 module.exports=requireAuth
