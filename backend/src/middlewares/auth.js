@@ -12,7 +12,7 @@ const requireAuth= (req,res,next)=>{
         res.status(401).send('your token is not valid')
       }
       else{
-        console.log(decodedToken);
+       
         req.decodedToken=decodedToken
         next();
       }
