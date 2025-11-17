@@ -13,6 +13,7 @@ const requireAuth= (req,res,next)=>{
       }
       else{
         console.log(decodedToken);
+        req.decodedToken=decodedToken
         next();
       }
     })
@@ -22,20 +23,24 @@ const requireAuth= (req,res,next)=>{
      res.status(401).send('your token is exprired')
   }
 }
-const adminAuth= (req,res, next)=>{
-  if(!decodedToken){
+
+// admin authentication
+const adminAuth= async(req,res, next)=>{
+  
+  if(!req.decodedToken){
      res.status(401).send('your token is not valid')
   }
   else{
-    const user= User.findById(decodedToken);
+    console.log(req.decodedToken)
+    const user= await User.findById(req.decodedToken.id)
     if(user.admin){
-      console.log('admin isconnected')
+  
       next();
     }
     else{
-      console.log("you need admin preveligace")
+      return res.status(401).send("you need admin preveligace admin : ");
     }
   }
 }
 
-module.exports=requireAuth
+module.exports={requireAuth, adminAuth}
