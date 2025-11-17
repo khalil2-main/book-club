@@ -10,8 +10,8 @@ const SignUpForm = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    firstname: "",
+    lastname: "",
     email: "",
     birthday: "",
     address: "",
@@ -26,8 +26,8 @@ const SignUpForm = () => {
   // ---------------- VALIDATION ----------------
   const validateField = (name, value, allValues = form) => {
     switch (name) {
-      case "firstName":
-      case "lastName":
+      case "firstname":
+      case "lastname":
         if (!value.trim()) return "This field is required";
         if (value.length < 2) return "Must be at least 2 characters";
         return "";
@@ -133,20 +133,20 @@ const SignUpForm = () => {
       >
         <div className="flex flex-col md:flex-row gap-4">
           <Input
-            name="firstName"
+            name="firstname"
             placeholder="First Name"
-            value={form.firstName}
+            value={form.firstname}
             onChange={handleChange}
-            error={errors.firstName}
+            error={errors.firstname}
             className="flex-1"
           />
 
           <Input
-            name="lastName"
+            name="lastname"
             placeholder="Last Name"
-            value={form.lastName}
+            value={form.lastname}
             onChange={handleChange}
-            error={errors.lastName}
+            error={errors.lastname}
             className="flex-1"
           />
         </div>

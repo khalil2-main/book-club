@@ -2,7 +2,7 @@ const { options } = require("../routers");
 
 
 const createUserValidatorsScheama={
-  firstName:{
+  firstname:{
     isLength:{
       options:{
         min:3
@@ -13,7 +13,7 @@ const createUserValidatorsScheama={
       errorMessage:'fill the first,ame field'
     }
   },
-  lastName:{
+  lastname:{
     isLength:{
       options:{
         min:3,
@@ -23,6 +23,12 @@ const createUserValidatorsScheama={
     },
     notEmpty:{
       errorMessage:'fill the lastname field'
+    }
+  },
+   admin:{
+    optional:true,
+    isboalen:{
+      errorMessage:'invalid admin data'
     }
   },
  
@@ -71,7 +77,7 @@ const createUserValidatorsScheama={
   }
 }
 const updateUserValidatorsScheama={
-  firstName:{
+  firstname:{
     optional: true,
     isLength:{
       options:{
@@ -80,14 +86,14 @@ const updateUserValidatorsScheama={
       errorMessage:'firstname should at least contains 3 characterss'
     }
   },
-  lastName:{
+  lastname:{
     optional: true,
     isLength:{
       options:{
         min:3,
         
       },
-      errorMessage:'lastName should at least contains 3 characterss'
+      errorMessage:'lastname should at least contains 3 characterss'
     }
   },
  
@@ -114,6 +120,12 @@ const updateUserValidatorsScheama={
         
       },
       errorMessage:'password should at least contains 8 characterss'
+    }
+  },
+  admin:{
+    optional:true,
+    isboalen:{
+      errorMessage:'invalid admin data'
     }
   },
 
