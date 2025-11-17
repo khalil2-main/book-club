@@ -5,7 +5,7 @@ const {query, body, matchedData,checkSchema, validationResult}= require('express
 const {createUserValidatorsScheama,updateUserValidatorsScheama,AuthUserValidatorsScheama}= require('../config/UservalidationSchema');
 const { hashPassword } = require('../utils/helpers');
 
-const requireAuth = require('../middlewares/auth');
+const {requireAuth, adminAuth}= require('../middlewares/auth');
 
 
 const router = Router();
@@ -88,8 +88,9 @@ router.use(requireAuth)
   })
 
 router.use(requireAuth)
-// get users
-router.get('/api/users', async (req, res) => {
+
+// get all users
+router.get('/api/users',adminAuth, async (req, res) => {
   try {
     const users = await User.find().sort({prenom:1,nom:1}); 
     res.status(200).json(users);
@@ -98,6 +99,46 @@ router.get('/api/users', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+//filtering users
+router.get("/api/users/search",adminAuth , async (req, res) => {
+  try {
+    const { firstname, lastname, email, role } = req.query;
+
+    const filter = {};
+
+    if (firstname) {
+      filter.firstname = { $regex: '^' + firstname, $options: 'i' };
+    }
+
+    if (lastname) {
+      filter.lastname = { $regex: '^' + lastname, $options: 'i' };
+    }
+
+    if (email) {
+      filter.email = { $regex: '^' + email, $options: 'i' };
+    }
+
+    if (role) {
+      filter.admin = role === "admin";
+    }
+
+    const users = await User.find(filter).sort({ firstname: 1, lastname: 1 });
+
+    res.status(200).json(users);
+
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
+
+
+
 // get by ID
 router.get('/api/users/:id',async (req, res)=>{
     try{
@@ -112,6 +153,8 @@ router.get('/api/users/:id',async (req, res)=>{
 
   }  
   });
+
+
 
 //update user information
 router.patch('/api/users/:id',checkSchema(updateUserValidatorsScheama),async (req, res)=>{
