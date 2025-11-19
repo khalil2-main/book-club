@@ -182,7 +182,7 @@ const SignUpForm = () => {
           value={form.email}
            onChange={handleChange}
             error={errors.lastname}
-           
+            className="flex-1"
           />
 
         <Input
