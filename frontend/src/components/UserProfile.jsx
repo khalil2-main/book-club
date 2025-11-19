@@ -5,33 +5,57 @@ import noImage from "../assets/images/no-picture.png";
 
 const letterRegex = /^[\p{L}\p{M}]+$/u;
 
+// ---------------- AXIOS FUNCTION ----------------
+const updateUser = async (data) => {
+  try {
+    const res = await axios.patch("/api/user/me", data, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Update failed:", err);
+    throw err;
+  }
+};
+
 const UserProfile = () => {
   const [form, setForm] = useState({
     firstname: "",
     lastname: "",
     email: "",
     birthday: "",
-    address: "",
-    city: "",
-    country: "",
-    image: null,
+    address: {
+      location: "",
+      city: "",
+      country: "",
+    },
+    image: null, // will handle preview only
   });
 
   const [preview, setPreview] = useState(noImage);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  // ---------------- FETCH USER DATA ----------------
+  // ---------------- FETCH USER ----------------
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { data } = await axios.get("/api/users/me");
-        setForm(data);
-        if(data.image) setPreview(data.image);
+        const res = await axios.get("/api/user/me", { withCredentials: true });
+        const data = res.data.user;
 
-      } catch (error) {
-        console.error("Failed to load user", error);
+        setForm({
+          ...data,
+          address: data.address || { location: "", city: "", country: "" },
+          image: null,
+        });
+        setPreview(data.image || noImage);
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchUser();
   }, []);
 
@@ -40,28 +64,34 @@ const UserProfile = () => {
     switch (name) {
       case "firstname":
       case "lastname":
-        
-        if (value.length < 2) return "Must be at least 2 characters";
+        if (!value || value.length < 2) return "Must be at least 2 characters";
         return "";
-
-      case "birthday":
-        
-        return "";
-
       case "city":
       case "country":
         if (value && !letterRegex.test(value)) return "Letters only";
         return "";
-
       default:
         return "";
     }
   };
 
+  const validateForm = () => {
+    const nextErrors = {
+      firstname: validateField("firstname", form.firstname),
+      lastname: validateField("lastname", form.lastname),
+      city: validateField("city", form.address.city),
+      country: validateField("country", form.address.country),
+    };
+
+    setErrors(nextErrors);
+    return Object.values(nextErrors).every((msg) => !msg);
+  };
+
+  // ---------------- HANDLE CHANGE ----------------
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    // Handle image upload
+    // IMAGE PREVIEW ONLY
     if (name === "image") {
       const file = files[0];
       setForm({ ...form, image: file });
@@ -69,40 +99,49 @@ const UserProfile = () => {
       return;
     }
 
-    const updatedForm = { ...form, [name]: value };
-    setForm(updatedForm);
+    // ADDRESS FIELDS
+    if (["location", "city", "country"].includes(name)) {
+      setForm({
+        ...form,
+        address: { ...form.address, [name]: value },
+      });
+      setErrors({ ...errors, [name]: validateField(name, value) });
+      return;
+    }
 
-    const fieldError = validateField(name, value);
-    setErrors({ ...errors, [name]: fieldError });
+    // NORMAL FIELDS
+    setForm({ ...form, [name]: value });
+    setErrors({ ...errors, [name]: validateField(name, value) });
   };
 
-  const validateForm = () => {
-    const nextErrors = {};
-    Object.keys(form).forEach((key) => {
-      nextErrors[key] = validateField(key, form[key]);
-    });
-    setErrors(nextErrors);
-    return Object.values(nextErrors).every((m) => !m);
-  };
-
-  // ---------------- UPDATE USER ----------------
-  const handleSave = async (e) => {
+  // ---------------- HANDLE SUBMIT ----------------
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const formData = new FormData();
-    Object.keys(form).forEach((key) => formData.append(key, form[key]));
+    // Prepare payload (skip image)
+    const payload = {
+    firstname: form.firstname || undefined,
+    lastname: form.lastname || undefined,
+    birthday: form.birthday || undefined,
+    "address.location": form.address.location || undefined,
+    "address.city": form.address.city || undefined,
+    "address.country": form.address.country || undefined,
+  };
+
+    delete payload.image;
 
     try {
-      await axios.put("/api/users/me", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      alert("Profile updated!");
+      console.log("Submitting payload:", payload);
+      await updateUser(payload);
+     
     } catch (err) {
-      console.error("Update failed", err);
+      alert(err);
     }
   };
 
+  // ---------------- UI ----------------
+  if (loading) return <div className="p-6 text-center">Loading...</div>;
 
   return (
     <div className="flex justify-center items-center w-full p-6">
@@ -112,11 +151,10 @@ const UserProfile = () => {
         {/* PROFILE IMAGE */}
         <div className="flex items-center gap-6 mb-6">
           <img
-            src={preview || "/placeholder.png"}
+            src={preview}
             alt="Preview"
             className="w-20 h-20 rounded-full object-cover border"
           />
-
           <div>
             <label className="text-sm font-semibold">Profile Image</label>
             <input
@@ -129,8 +167,8 @@ const UserProfile = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-4">
-
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
             <Input
               name="firstname"
@@ -164,13 +202,12 @@ const UserProfile = () => {
             type="date"
             value={form.birthday}
             onChange={handleChange}
-            error={errors.birthday}
           />
 
           <Input
-            name="address"
+            name="location"
             placeholder="Address"
-            value={form.address}
+            value={form.address.location}
             onChange={handleChange}
           />
 
@@ -178,7 +215,7 @@ const UserProfile = () => {
             <Input
               name="city"
               placeholder="City"
-              value={form.city}
+              value={form.address.city}
               onChange={handleChange}
               error={errors.city}
               className="flex-1"
@@ -186,7 +223,7 @@ const UserProfile = () => {
             <Input
               name="country"
               placeholder="Country"
-              value={form.country}
+              value={form.address.country}
               onChange={handleChange}
               error={errors.country}
               className="flex-1"
