@@ -13,7 +13,7 @@ const requireAuth= (req,res,next)=>{
       }
       else{
        
-        req.decodedToken=decodedToken
+        req.userId=decodedToken.id
         next();
       }
     })
@@ -32,7 +32,7 @@ const adminAuth= async(req,res, next)=>{
   }
   else{
     console.log(req.decodedToken)
-    const user= await User.findById(req.decodedToken.id)
+    const user= await User.findById(req.userId)
     if(user.admin){
   
       next();
