@@ -89,7 +89,48 @@ router.use(requireAuth)
 
 router.use(requireAuth)
 
-// get all users
+
+
+//--Authonticated user mangemnt api--//
+
+router.get('/api/user/me', async(req, res)=>{
+  try{
+    const userId= req.userId;
+    const user= await User.findById(userId);
+    if(!user) return res.status(400).send({error: 'User not found' });
+    return res.status(200).send({user})
+  }catch(err){
+    console.error(' Error fetching user:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// --User update api --//
+router.patch('/api/user/me',checkSchema(updateUserValidatorsScheama),async (req, res)=>{
+    try{
+      const userId= req.userId;
+      const result= validationResult(req)
+      if(!result.isEmpty()){
+       erorrHandler(result)
+        res.status(400).send({errors});}
+      const data= matchedData(req);
+      if(data.password)data.password=hashPassword(data.password)
+      const user = await User.findByIdAndUpdate(userId,data,{
+        new: true,
+        runValidators:true
+      });
+      if(!user) return res.status(400).send({error: 'document not found' });
+      return res.status(200).send({user})
+    }catch(err){
+     //duplicate error code
+      if(err.code=== 11000){
+        errors.email='Email is already taken'
+      }
+      return res.status(400).send({errors});
+  }  
+  });
+//-- Admin user mangemnt api --//
+      // get all users
 router.get('/api/users',adminAuth, async (req, res) => {
   try {
     const users = await User.find().sort({prenom:1,nom:1}); 
@@ -134,11 +175,6 @@ router.get("/api/users/search",adminAuth , async (req, res) => {
 
 
 
-
-
-
-
-
 // get by ID
 router.get('/api/users/:id',async (req, res)=>{
     try{
@@ -153,7 +189,6 @@ router.get('/api/users/:id',async (req, res)=>{
 
   }  
   });
-
 
 
 //update user information
