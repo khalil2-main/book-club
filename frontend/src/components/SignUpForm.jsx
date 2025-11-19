@@ -14,9 +14,11 @@ const SignUpForm = () => {
     lastname: "",
     email: "",
     birthday: "",
-    address: "",
-    city: "",
-    country: "",
+    address: {
+      location: "",
+      city: "",
+      country: ""
+    },
     password: "",
     confirmPassword: "",
   });
@@ -41,17 +43,17 @@ const SignUpForm = () => {
         if (!value) return "Birthday is required";
         return "";
 
-      case "address":
-        if (!value) return "";
+      case "location":
+        if (!value) return "Address is required";
         return "";
 
       case "city":
-        if (!value) return "";
+        if (!value) return "City is required";
         if (!letterRegex.test(value)) return "City must be letters only";
         return "";
 
       case "country":
-        if (!value) return "";
+        if (!value) return "Country is required";
         if (!letterRegex.test(value)) return "Country must be letters only";
         return "";
 
@@ -72,20 +74,38 @@ const SignUpForm = () => {
     }
   };
 
-  // Handle field change
+  // Handle change including nested address
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const newForm = { ...form, [name]: value };
-    setForm(newForm);
 
-    const fieldError = validateField(name, value, newForm);
-    const updatedErrors = { ...errors, [name]: fieldError };
+    let updatedForm;
 
-    if (name === "password" && newForm.confirmPassword) {
+    if (["location", "city", "country"].includes(name)) {
+      updatedForm = {
+        ...form,
+        address: {
+          ...form.address,
+          [name]: value,
+        },
+      };
+    } else {
+      updatedForm = { ...form, [name]: value };
+    }
+
+    setForm(updatedForm);
+
+    const fieldError = validateField(name, value, updatedForm);
+
+    const updatedErrors = {
+      ...errors,
+      [name]: fieldError,
+    };
+
+    if (name === "password" && updatedForm.confirmPassword) {
       updatedErrors.confirmPassword = validateField(
         "confirmPassword",
-        newForm.confirmPassword,
-        newForm
+        updatedForm.confirmPassword,
+        updatedForm
       );
     }
 
@@ -95,17 +115,23 @@ const SignUpForm = () => {
   // Validate entire form
   const validateForm = () => {
     const nextErrors = {};
+
     Object.keys(form).forEach((key) => {
-      nextErrors[key] = validateField(key, form[key], form);
+      if (key === "address") {
+        Object.keys(form.address).forEach((subKey) => {
+          nextErrors[subKey] = validateField(subKey, form.address[subKey], form);
+        });
+      } else {
+        nextErrors[key] = validateField(key, form[key], form);
+      }
     });
+
     setErrors(nextErrors);
     return Object.values(nextErrors).every((msg) => !msg);
   };
 
   // ---------------- SEND DATA ----------------
   const creatUser = async () => {
-    
-
     try {
       await axios.post("/api/users", form);
       console.log("Sent:", form);
@@ -117,9 +143,7 @@ const SignUpForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      creatUser();
-    }
+    if (validateForm()) creatUser();
   };
 
   // ---------------- UI ----------------
@@ -156,9 +180,10 @@ const SignUpForm = () => {
           type="email"
           placeholder="Email"
           value={form.email}
-          onChange={handleChange}
-          error={errors.email}
-        />
+           onChange={handleChange}
+            error={errors.lastname}
+           
+          />
 
         <Input
           name="birthday"
@@ -170,18 +195,18 @@ const SignUpForm = () => {
         />
 
         <Input
-          name="address"
+          name="location"
           placeholder="Street / Location"
-          value={form.address}
+          value={form.address.location}
           onChange={handleChange}
-          error={errors.address}
+          error={errors.location}
         />
 
         <div className="flex flex-col md:flex-row gap-4">
           <Input
             name="city"
             placeholder="City"
-            value={form.city}
+            value={form.address.city}
             onChange={handleChange}
             error={errors.city}
             className="flex-1"
@@ -190,7 +215,7 @@ const SignUpForm = () => {
           <Input
             name="country"
             placeholder="Country"
-            value={form.country}
+            value={form.address.country}
             onChange={handleChange}
             error={errors.country}
             className="flex-1"
