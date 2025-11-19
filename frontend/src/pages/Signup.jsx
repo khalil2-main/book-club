@@ -7,7 +7,8 @@ import SignUpForm from "../components/SignUpForm";
 function Signup(){
   return (
     <>
-          <Header />
+          <title>Sign Up - Book Club</title>
+            <Header />
                <div className="flex items-center justify-center min-h-screen bg-blue-50">
                  <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden w-8/12">
                    
