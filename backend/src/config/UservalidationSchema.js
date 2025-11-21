@@ -27,7 +27,7 @@ const createUserValidatorsScheama={
   },
    admin:{
     optional:true,
-    isboalen:{
+    isBoolean:{
       errorMessage:'invalid admin data'
     }
   },
@@ -124,7 +124,7 @@ const updateUserValidatorsScheama={
   },
   admin:{
     optional:true,
-    isboalen:{
+    isBoolean:{
       errorMessage:'invalid admin data'
     }
   },
