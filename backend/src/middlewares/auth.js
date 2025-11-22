@@ -27,11 +27,11 @@ const requireAuth= (req,res,next)=>{
 // admin authentication
 const adminAuth= async(req,res, next)=>{
   
-  if(!req.decodedToken){
+  if(!req.userId){
      res.status(401).send('your token is not valid')
   }
   else{
-    console.log(req.decodedToken)
+    console.log(req.userId)
     const user= await User.findById(req.userId)
     if(user.admin){
   

@@ -3,10 +3,12 @@ import Input from "../components/Input";
 import axios from "axios";
 import noImage from "../assets/images/no-picture.png";
 
-const letterRegex = /^[\p{L}\p{M}]+$/u;
+const letterRegex = /^[\p{L}\p{M} ]+$/u;
 
-// ---------------- AXIOS FUNCTION ----------------
+
+// ---------------- update function ----------------
 const updateUser = async (data) => {
+
   try {
     const res = await axios.patch("/api/user/me", data, {
       withCredentials: true,
@@ -29,7 +31,7 @@ const UserProfile = () => {
       city: "",
       country: "",
     },
-    image: null, // will handle preview only
+    image: null,
   });
 
   const [preview, setPreview] = useState(noImage);
@@ -37,10 +39,13 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
 
   // ---------------- FETCH USER ----------------
+  ///use effect reloaded when the component is mounted
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("/api/user/me", { withCredentials: true });
+        //get user user information
+        //get information from the backend using the  id stored in the JWT token
+          const res = await axios.get("/api/user/me", { withCredentials: true });
         const data = res.data.user;
 
         setForm({
@@ -65,6 +70,7 @@ const UserProfile = () => {
       case "firstname":
       case "lastname":
         if (!value || value.length < 2) return "Must be at least 2 characters";
+        if (value && !letterRegex.test(value)) return "Letters only";
         return "";
       case "city":
       case "country":
