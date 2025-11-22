@@ -14,6 +14,9 @@ const LogInForm = () => {
       console.log("Sent:", form);
       navigate("/");
     } catch (err) {
+      if(err.response.data.errors) {
+        console.log(err.response.data.errors)
+        setErrors(err.response.data.errors)}
       console.error("Signup failed:", err);
     }
   };

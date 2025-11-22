@@ -130,10 +130,11 @@ const SignUpForm = () => {
   // ---------------- SEND DATA ----------------
   const creatUser = async () => {
     try {
-      await axios.post("/api/users", form);
+      await axios.post("/api/register", form);
       console.log("Sent:", form);
       navigate("/");
     } catch (err) {
+      if(err.response.data.errors) setErrors(err.response.data.errors)
       console.error("Signup failed:", err);
     }
   };
@@ -178,7 +179,7 @@ const SignUpForm = () => {
           placeholder="Email"
           value={form.email}
            onChange={handleChange}
-            error={errors.lastname}
+            error={errors.email}
             className="flex-1"
           />
 
