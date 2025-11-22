@@ -5,11 +5,12 @@ const {requireAuth} = require('../middlewares/auth');
 
 
 
+
 const routers=Router()
 
 
 routers.use('/api',auth)
-routers.use('/api/user',user)
+routers.use('/api/user',requireAuth,user)
 
 
 

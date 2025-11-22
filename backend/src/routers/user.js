@@ -5,7 +5,7 @@ const { matchedData,checkSchema, validationResult}= require('express-validator')
 const {updateUserValidatorsScheama}= require('../config/UservalidationSchema');
 const { hashPassword } = require('../utils/helpers');
 
-const {requireAuth, adminAuth}= require('../middlewares/auth');
+const { adminAuth}= require('../middlewares/auth');
 
 
 const router = Router();
@@ -13,7 +13,7 @@ const router = Router();
 
 
 //--Authonticated user mangemnt api--//
-router.use(requireAuth)
+
 router.get('/me', async(req, res)=>{
   try{
     const userId= req.userId;
