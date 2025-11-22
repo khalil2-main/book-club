@@ -31,6 +31,8 @@ const SignUpForm = () => {
       case "firstname":
       case "lastname":
         if (!value.trim()) return "This field is required";
+        if (!letterRegex.test(value)) return " must be letters only";
+        
         if (value.length < 2) return "Must be at least 2 characters";
         return "";
 
@@ -44,17 +46,12 @@ const SignUpForm = () => {
         return "";
 
       case "location":
-        if (!value) return "Address is required";
+      
         return "";
 
       case "city":
-        if (!value) return "City is required";
-        if (!letterRegex.test(value)) return "City must be letters only";
-        return "";
-
       case "country":
-        if (!value) return "Country is required";
-        if (!letterRegex.test(value)) return "Country must be letters only";
+        if (value && !letterRegex.test(value)) return "Letters only";
         return "";
 
       case "password":
