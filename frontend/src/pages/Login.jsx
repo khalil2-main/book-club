@@ -1,4 +1,4 @@
-import Header from "../components/header";
+import Header from "../components/Header";
 import LogInForm from "../components/LogInForm";
 import SideImage from "../components/sideimage";
 

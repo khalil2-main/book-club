@@ -12,7 +12,7 @@ const LogInForm = () => {
     try {
       await axios.post("/api/login", form);
       console.log("Sent:", form);
-      navigate("/");
+      navigate("/recentbooks");
     } catch (err) {
       if(err.response.data.errors) {
         console.log(err.response.data.errors)
@@ -114,8 +114,11 @@ const LogInForm = () => {
         </button>
       </form>
               <button onClick={() => navigate("../signup")} className="mt-6 text-indigo-600 font-medium hover:underline transition" >
-    Don’t have an account? Sign up
-  </button>
+                Don’t have an account? Sign up
+              </button>
+              <button onClick={() => navigate("/recentbooks")} className="mt-2 text-indigo-600 font-medium hover:underline transition" >
+                Aller à la page RecentBooks
+              </button>
     </div>
   );
 };

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Input from "../components/Input";
+import { useNavigate } from "react-router";
+import Header from "./Header";
+import SideImage from "./sideimage";
+import Input from "./Input";
 import axios from "axios";
 import noImage from "../assets/images/no-picture.png";
 
@@ -27,7 +30,6 @@ const UserProfile = () => {
     email: "",
     birthday: "",
     address: {
-      location: "",
       city: "",
       country: "",
     },
@@ -37,6 +39,7 @@ const UserProfile = () => {
   const [preview, setPreview] = useState(noImage);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // ---------------- FETCH USER ----------------
   ///use effect reloaded when the component is mounted
@@ -50,11 +53,16 @@ const UserProfile = () => {
 
         setForm({
           ...data,
-          address: data.address || { location: "", city: "", country: "" },
+          address: data.address || { city: "", country: "" },
           image: null,
         });
         setPreview(data.image || noImage);
       } catch (err) {
+        // If user is not authenticated, redirect to login
+        if (err && err.response && err.response.status === 401) {
+          navigate("/login");
+          return;
+        }
         console.error("Failed to fetch user:", err);
       } finally {
         setLoading(false);
@@ -106,7 +114,7 @@ const UserProfile = () => {
     }
 
     // ADDRESS FIELDS
-    if (["location", "city", "country"].includes(name)) {
+    if (["city", "country"].includes(name)) {
       setForm({
         ...form,
         address: { ...form.address, [name]: value },
@@ -127,13 +135,12 @@ const UserProfile = () => {
 
     // Prepare payload (skip image)
     const payload = {
-    firstname: form.firstname || undefined,
-    lastname: form.lastname || undefined,
-    birthday: form.birthday || undefined,
-    "address.location": form.address.location || undefined,
-    "address.city": form.address.city || undefined,
-    "address.country": form.address.country || undefined,
-  };
+      firstname: form.firstname || undefined,
+      lastname: form.lastname || undefined,
+      birthday: form.birthday || undefined,
+      "address.city": form.address.city || undefined,
+      "address.country": form.address.country || undefined,
+    };
 
     delete payload.image;
 
@@ -150,101 +157,116 @@ const UserProfile = () => {
   if (loading) return <div className="p-6 text-center">Loading...</div>;
 
   return (
-    <div className="flex justify-center items-center w-full p-6">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow p-8">
-        <h2 className="text-2xl font-semibold mb-6">Edit Profile</h2>
+    <>
+      <Header />
+      <div className="flex items-center justify-center min-h-screen bg-blue-50">
+        <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden w-8/12">
 
-        {/* PROFILE IMAGE */}
-        <div className="flex items-center gap-6 mb-6">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-20 h-20 rounded-full object-cover border"
-          />
-          <div>
-            <label className="text-sm font-semibold">Profile Image</label>
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleChange}
-              className="mt-1 block"
-            />
+          <div className="w-full md:w-1/2 flex items-center justify-center p-6">
+            <div className="w-full max-w-2xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold">Edit Profile</h2>
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-3 py-1 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                >
+                  Back
+                </button>
+              </div>
+
+              {/* PROFILE IMAGE */}
+              <div className="flex items-center gap-6 mb-6">
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-20 h-20 rounded-full object-cover border"
+                />
+                <div>
+                  <label className="text-sm font-semibold">Profile Image</label>
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleChange}
+                    className="mt-1 block"
+                  />
+                </div>
+              </div>
+
+              {/* FORM */}
+              <form onSubmit={handleSubmit} className="space-y-4 w-full">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <Input
+                    name="firstname"
+                    placeholder="First Name"
+                    value={form.firstname}
+                    onChange={handleChange}
+                    error={errors.firstname}
+                    className="flex-1"
+                  />
+                  <Input
+                    name="lastname"
+                    placeholder="Last Name"
+                    value={form.lastname}
+                    onChange={handleChange}
+                    error={errors.lastname}
+                    className="flex-1"
+                  />
+                </div>
+
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="Email"
+                  value={form.email}
+                  disabled
+                  className="opacity-60 bg-gray-100"
+                />
+
+                <Input
+                  name="birthday"
+                  type="date"
+                  value={form.birthday}
+                  onChange={handleChange}
+                />
+
+                <div className="flex flex-col md:flex-row gap-4">
+                  <Input
+                    name="city"
+                    placeholder="City"
+                    value={form.address.city}
+                    onChange={handleChange}
+                    error={errors.city}
+                    className="flex-1"
+                  />
+                  <Input
+                    name="country"
+                    placeholder="Country"
+                    value={form.address.country}
+                    onChange={handleChange}
+                    error={errors.country}
+                    className="flex-1"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+                >
+                  Save Changes
+                </button>
+              </form>
+            </div>
           </div>
+
+          <div className="w-full md:w-1/2">
+            <SideImage />
+          </div>
+
         </div>
-
-        {/* FORM */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <Input
-              name="firstname"
-              placeholder="First Name"
-              value={form.firstname}
-              onChange={handleChange}
-              error={errors.firstname}
-              className="flex-1"
-            />
-            <Input
-              name="lastname"
-              placeholder="Last Name"
-              value={form.lastname}
-              onChange={handleChange}
-              error={errors.lastname}
-              className="flex-1"
-            />
-          </div>
-
-          <Input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            disabled
-            className="opacity-60 bg-gray-100"
-          />
-
-          <Input
-            name="birthday"
-            type="date"
-            value={form.birthday}
-            onChange={handleChange}
-          />
-
-          <Input
-            name="location"
-            placeholder="Address"
-            value={form.address.location}
-            onChange={handleChange}
-          />
-
-          <div className="flex flex-col md:flex-row gap-4">
-            <Input
-              name="city"
-              placeholder="City"
-              value={form.address.city}
-              onChange={handleChange}
-              error={errors.city}
-              className="flex-1"
-            />
-            <Input
-              name="country"
-              placeholder="Country"
-              value={form.address.country}
-              onChange={handleChange}
-              error={errors.country}
-              className="flex-1"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-          >
-            Save Changes
-          </button>
-        </form>
       </div>
-    </div>
+    </>
   );
 };
 
