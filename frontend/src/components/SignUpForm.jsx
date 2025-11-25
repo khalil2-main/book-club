@@ -15,6 +15,7 @@ const SignUpForm = () => {
     email: "",
     birthday: "",
     address: {
+      location:"",
       city: "",
       country: ""
     },
@@ -45,7 +46,8 @@ const SignUpForm = () => {
         return "";
 
       // removed location validation (not used on signup)
-
+      case "location":
+        return "";
       case "city":
       case "country":
         if (value && !letterRegex.test(value)) return "Letters only";
@@ -74,7 +76,7 @@ const SignUpForm = () => {
 
     let updatedForm;
 
-    if (["city", "country"].includes(name)) {
+    if (["location","city", "country"].includes(name)) {
       updatedForm = {
         ...form,
         address: {
@@ -189,7 +191,13 @@ const SignUpForm = () => {
           error={errors.birthday}
         />
 
-        {/* Street/Location removed as requested */}
+        <Input
+          name="location"
+          placeholder="Adresse"
+          value={form.address.location}
+          onChange={handleChange}
+          error={errors.location}
+        />
 
         <div className="flex flex-col md:flex-row gap-4">
           <Input

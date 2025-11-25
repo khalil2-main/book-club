@@ -30,6 +30,7 @@ const UserProfile = () => {
     email: "",
     birthday: "",
     address: {
+      location:"",
       city: "",
       country: "",
     },
@@ -47,7 +48,7 @@ const UserProfile = () => {
     const fetchUser = async () => {
       try {
         //get user user information
-        //get information from the backend using the  id stored in the JWT token
+    
           const res = await axios.get("/api/user/me", { withCredentials: true });
         const data = res.data.user;
 
@@ -59,7 +60,7 @@ const UserProfile = () => {
         setPreview(data.image || noImage);
       } catch (err) {
         // If user is not authenticated, redirect to login
-        if (err && err.response && err.response.status === 401) {
+        if (err.response.status === 401) {
           navigate("/login");
           return;
         }
@@ -80,6 +81,8 @@ const UserProfile = () => {
         if (!value || value.length < 2) return "Must be at least 2 characters";
         if (value && !letterRegex.test(value)) return "Letters only";
         return "";
+      case "location":
+      return "";
       case "city":
       case "country":
         if (value && !letterRegex.test(value)) return "Letters only";
@@ -114,7 +117,7 @@ const UserProfile = () => {
     }
 
     // ADDRESS FIELDS
-    if (["city", "country"].includes(name)) {
+    if (["location","city", "country"].includes(name)) {
       setForm({
         ...form,
         address: { ...form.address, [name]: value },
@@ -138,8 +141,9 @@ const UserProfile = () => {
       firstname: form.firstname || undefined,
       lastname: form.lastname || undefined,
       birthday: form.birthday || undefined,
-      "address.city": form.address.city || undefined,
-      "address.country": form.address.country || undefined,
+      "address.location": form.address.location || "",
+      "address.city": form.address.city || "",
+      "address.country": form.address.country || "",
     };
 
     delete payload.image;
@@ -230,7 +234,13 @@ const UserProfile = () => {
                   value={form.birthday}
                   onChange={handleChange}
                 />
-
+                <Input
+                  name="location"
+                  placeholder="Street / Location"
+                  value={form.address.location}
+                  onChange={handleChange}
+                  error={errors.location}
+                />
                 <div className="flex flex-col md:flex-row gap-4">
                   <Input
                     name="city"
