@@ -30,6 +30,12 @@ const PORT=process.env.PORT|| 3000;
     app.use((req, res)=>{
       res.status(404).json({Message: '404 route not found'});
     })
+
+    // Global error handler to log unexpected errors and respond 500
+    app.use((err, req, res, next) => {
+      console.error('Unhandled error:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
     app.listen(PORT,()=>{
      
       console.log(`running on port ${PORT}` )

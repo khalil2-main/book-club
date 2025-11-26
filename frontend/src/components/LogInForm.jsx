@@ -6,21 +6,31 @@ import axios from "axios";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const LogInForm = () => {
-  const getToken = async () => {
-    
+  const navigate = useNavigate();
 
+  const getToken = async () => {
     try {
-      await axios.post("/api/login", form);
+      await axios.post("/api/login", form, { withCredentials: true });
       console.log("Sent:", form);
-      navigate("/recentbooks");
+      navigate("/books");
     } catch (err) {
-      if(err.response.data.errors) {
-        console.log(err.response.data.errors)
-        setErrors(err.response.data.errors)}
-      console.error("Signup failed:", err);
+      console.error('Login failed:', err?.response?.status, err?.response?.data || err.message || err);
+      if (err?.response) {
+        // show server status and body for debugging
+        console.log('Server response status:', err.response.status);
+        console.log('Server response data:', err.response.data);
+        if (err.response.data && err.response.data.errors) {
+          setErrors(err.response.data.errors);
+        } else if (err.response.data && err.response.data.error) {
+          alert(`Server error: ${err.response.data.error}`);
+        } else {
+          alert(`Server error: ${err.response.status}`);
+        }
+      } else {
+        alert('Network or CORS error: ' + (err.message || 'unknown'));
+      }
     }
   };
-  const navigate=useNavigate()
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -66,6 +76,7 @@ const LogInForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('handleSubmit fired', form);
     if (!validateForm()) {
       const firstError = Object.keys(errors).find((k) => errors[k]);
       if (firstError) {
@@ -75,7 +86,7 @@ const LogInForm = () => {
       return;
     }
 
-    getToken()
+    getToken();
   };
 
   return (
@@ -108,16 +119,17 @@ const LogInForm = () => {
 
         <button
           type="submit"
+          onClick={() => console.log('submit button clicked')}
           className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-300 mt-2"
         >
           Log In
         </button>
       </form>
-              <button onClick={() => navigate("../signup")} className="mt-6 text-indigo-600 font-medium hover:underline transition" >
+              <button onClick={() => navigate("/signup")} className="mt-6 text-indigo-600 font-medium hover:underline transition" >
                 Don’t have an account? Sign up
               </button>
-              <button onClick={() => navigate("/recentbooks")} className="mt-2 text-indigo-600 font-medium hover:underline transition" >
-                Aller à la page RecentBooks
+              <button onClick={() => navigate("/books")} className="mt-2 text-indigo-600 font-medium hover:underline transition" >
+                All Books
               </button>
     </div>
   );
