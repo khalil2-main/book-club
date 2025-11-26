@@ -59,11 +59,7 @@ const UserProfile = () => {
         });
         setPreview(data.image || noImage);
       } catch (err) {
-        // If user is not authenticated, redirect to login
-        if (err.response.status === 401) {
-          navigate("/login");
-          return;
-        }
+   
         console.error("Failed to fetch user:", err);
       } finally {
         setLoading(false);
