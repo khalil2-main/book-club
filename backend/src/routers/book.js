@@ -1,40 +1,40 @@
 const { Router}= require('express')
+const Book = require('../models/book');
+const { requireAuth } = require('../middlewares/auth');
 
 const router=Router();
 
-
-
-// Liste statique de livres
-const staticBooks = [
-  {
-    _id: '1',
-    title: 'Le Petit Prince',
-    author: 'Antoine de Saint-Exupéry',
-    description: 'Un conte poétique et philosophique.',
-    createdAt: new Date('2025-11-01')
-  },
-  {
-    _id: '2',
-    title: 'L’Étranger',
-    author: 'Albert Camus',
-    description: 'Un roman sur l’absurdité de la vie.',
-    createdAt: new Date('2025-11-10')
-  },
-  {
-    _id: '3',
-    title: '1984',
-    author: 'George Orwell',
-    description: 'Un classique de la dystopie politique.',
-    createdAt: new Date('2025-11-20')
+// GET /api/book - list books from DB, fallback to empty array
+router.get('/', async (req, res) => {
+  try {
+    const books = await Book.find().sort({ createdAt: -1 }).lean();
+    res.json(books);
+  } catch (err) {
+    console.error('Error fetching books:', err);
+    return res.status(500).json({ error: 'Server error' });
   }
-];
-
-router.get('/', (req, res) => {
-  // Option de tri par date de création (du plus récent au plus ancien)
-  const sorted = [...staticBooks].sort((a, b) => b.createdAt - a.createdAt);
-  res.json(sorted);
 });
 
+// POST /api/book - create a new book (authenticated)
+router.post('/', requireAuth, async (req, res) => {
+  try {
+    const { title, description, author, cover } = req.body;
+    if (!title) return res.status(400).json({ error: 'Title is required' });
 
+    const newBook = new Book({
+      title,
+      description,
+      author: author || undefined,
+      cover: cover || undefined,
+      createdBy: req.userId,
+    });
+
+    const saved = await newBook.save();
+    return res.status(201).json(saved);
+  } catch (err) {
+    console.error('Error creating book:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
 
 module.exports=router

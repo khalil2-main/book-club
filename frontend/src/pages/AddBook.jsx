@@ -39,7 +39,7 @@ const AddBook = () => {
     setLoading(true);
     try {
       await axios.post(
-        "/api/books",
+        "/api/book",
         { title: title.trim(), description: description.trim() },
         { withCredentials: true }
       );

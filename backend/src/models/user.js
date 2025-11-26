@@ -4,8 +4,10 @@ const { comparePassword } = require('../utils/helpers');
 
 
 const addressSchema = new mongoose.Schema({
+  street: { type: String },
   location: { type: String },
   city: { type: String },
+  state: { type: String },
   country: { type: String }
 }, { _id: false }); // prevent extra _id field for address
 
