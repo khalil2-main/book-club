@@ -1,39 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router";
-import axios from "axios";
+
+import { useNavigate} from "react-router";
+
 import logo from "../assets/images/logo.png";
+import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [isAuth, setIsAuth] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-    const checkAuth = async () => {
-      try {
-        await axios.get("/api/user/me", { withCredentials: true });
-        if (mounted) setIsAuth(true);
-      } catch (err) {
-        console.debug("Auth check failed:", err?.message || err);
-        if (mounted) setIsAuth(false);
-      }
-    };
+ 
 
-    checkAuth();
-    return () => (mounted = false);
-  }, []);
+  const {auth , admin, logout}= useAuth();
+  console.log(admin)
 
-  const handleLogout = async () => {
-    try {
-      await axios.get("/api/logout", { withCredentials: true });
-    } catch (err) {
-      console.error("Logout failed:", err);
-    } finally {
-      setIsAuth(false);
-      navigate("/login");
-    }
-  };
+ 
 
   return (
     <header className="w-full bg-indigo-400 shadow-md">
@@ -53,7 +32,7 @@ const Header = () => {
         {/* Header Buttons */}
         <div className="flex items-center gap-4 mr-3">
 
-          {isAuth && (
+          {auth && (
             <>
               <button
                 onClick={() => navigate("/dashboard")}
@@ -70,7 +49,7 @@ const Header = () => {
             </>
           )}
 
-          {["/login", "/signup"].includes(location.pathname) && (
+          {admin && (
             <button
               onClick={() => navigate("/admin")}
               className="px-3 py-2 bg-white text-indigo-600 font-semibold rounded-xl shadow hover:bg-indigo-50 transition"
@@ -79,16 +58,16 @@ const Header = () => {
             </button>
           )}
 
-          {!isAuth && (
+          {!auth && (
             <>
               <button
-                onClick={() => navigate("../signup")}
+                onClick={() => navigate("/signup")}
                 className="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-xl shadow hover:bg-indigo-50 transition"
               >
                 Sign Up
               </button>
               <button
-                onClick={() => navigate("../login")}
+                onClick={() => navigate("/login")}
                 className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-xl shadow hover:bg-indigo-700 transition"
               >
                 Log In
@@ -96,9 +75,9 @@ const Header = () => {
             </>
           )}
 
-          {isAuth && (
+          {auth && (
             <button
-              onClick={handleLogout}
+              onClick={logout}
               className="px-4 py-2 bg-white text-indigo-600 font-semibold rounded-xl shadow hover:bg-indigo-50 transition"
             >
               Logout
