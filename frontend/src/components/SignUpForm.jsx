@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import Input from "../components/Input";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const letterRegex = /^[\p{L}\p{M}]+$/u;
 
 const SignUpForm = () => {
   const navigate = useNavigate();
+  const {checkAuth}=useAuth()
 
   const [form, setForm] = useState({
     firstname: "",
@@ -131,6 +133,7 @@ const SignUpForm = () => {
     try {
       await axios.post("/api/register", form);
       console.log("Sent:", form);
+      await checkAuth();
       navigate("/");
     } catch (err) {
       if(err.response.data.errors) setErrors(err.response.data.errors)
