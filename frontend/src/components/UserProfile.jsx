@@ -51,12 +51,21 @@ const UserProfile = () => {
     
           const res = await axios.get("/api/user/me", { withCredentials: true });
         const data = res.data.user;
+        data.birthday =data.birthday.split('T')[0]
 
-        setForm({
-          ...data,
-          address: data.address || { city: "", country: "" },
-          image: null,
-        });
+       setForm({
+        firstname: data.firstname || "",
+        lastname: data.lastname || "",
+        email: data.email || "",
+        birthday: data.birthday ? data.birthday.split("T")[0] : "",
+        address: {
+          location: data.address?.location || "",
+          city: data.address?.city || "",
+          country: data.address?.country || "",
+        },
+        image: null,
+      });
+
         setPreview(data.image || noImage);
       } catch (err) {
    
@@ -145,7 +154,7 @@ const UserProfile = () => {
     delete payload.image;
 
     try {
-      console.log("Submitting payload:", payload);
+     
       await updateUser(payload);
      
     } catch (err) {
