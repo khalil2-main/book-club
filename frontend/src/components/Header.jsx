@@ -10,8 +10,7 @@ const Header = () => {
  
 
   const {auth , admin, logout}= useAuth();
-  console.log(admin)
-
+  
  
 
   return (
