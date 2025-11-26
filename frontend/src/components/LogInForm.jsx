@@ -2,16 +2,19 @@ import React, { useState } from "react";
 import Input from "../components/Input";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const LogInForm = () => {
+   const {checkAuth}= useAuth()
   const getToken = async () => {
-    
+   
 
     try {
       await axios.post("/api/login", form);
       console.log("Sent:", form);
+      await checkAuth()
       navigate("/recentbooks");
     } catch (err) {
       if(err.response.data.errors) {
