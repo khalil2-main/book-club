@@ -71,14 +71,6 @@ const createUserValidatorsScheama={
     optional: true,
     isString: { errorMessage: 'address.city must be a string' }
   },
-  'address.state': {
-    optional: true,
-    isString: { errorMessage: 'address.state must be a string' }
-  },
-  'address.street': {
-    optional: true,
-    isString: { errorMessage: 'address.street must be a string' }
-  },
   'address.country': {
     optional: true,
     isString: { errorMessage: 'address.country must be a string' }
@@ -144,14 +136,6 @@ const updateUserValidatorsScheama={
   'address.city': {
     optional: true,
     isString: { errorMessage: 'address.city must be a string' }
-  },
-  'address.state': {
-    optional: true,
-    isString: { errorMessage: 'address.state must be a string' }
-  },
-  'address.street': {
-    optional: true,
-    isString: { errorMessage: 'address.street must be a string' }
   },
   'address.country': {
     optional: true,
