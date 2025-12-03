@@ -44,14 +44,15 @@ const UserProfile = () => {
 
   // ---------------- FETCH USER ----------------
   ///use effect reloaded when the component is mounted
+  //refaiche
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        //get user user information
+        //get user information
     
           const res = await axios.get("/api/user/me", { withCredentials: true });
         const data = res.data.user;
-        data.birthday =data.birthday.split('T')[0]
+       
 
        setForm({
         firstname: data.firstname || "",
