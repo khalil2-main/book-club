@@ -30,13 +30,10 @@ const UserProfile = () => {
     email: "",
     birthday: "",
     address: {
-      street: "",
       city: "",
-      state: "",
+      country: "",
     },
     image: null,
-    password: "",
-    confirmPassword: "",
   });
 
   const [preview, setPreview] = useState(noImage);
@@ -56,10 +53,8 @@ const UserProfile = () => {
 
         setForm({
           ...data,
-          address: data.address || { street: "", city: "", state: "" },
+          address: data.address || { city: "", country: "" },
           image: null,
-          password: "",
-          confirmPassword: "",
         });
         setPreview(data.image || noImage);
       } catch (err) {
@@ -75,7 +70,7 @@ const UserProfile = () => {
     };
 
     fetchUser();
-  }, [navigate]);
+  }, []);
 
   // ---------------- VALIDATION ----------------
   const validateField = (name, value) => {
@@ -85,28 +80,9 @@ const UserProfile = () => {
         if (!value || value.length < 2) return "Must be at least 2 characters";
         if (value && !letterRegex.test(value)) return "Letters only";
         return "";
-      case "street":
-        if (value && value.length < 3) return "Enter a valid street";
-        return "";
-
       case "city":
+      case "country":
         if (value && !letterRegex.test(value)) return "Letters only";
-        return "";
-
-      case "state":
-        if (value && !letterRegex.test(value)) return "Letters only";
-        return "";
-
-      case "password":
-        if (value && value.length > 0) {
-          if (value.length < 8) return "Must be at least 8 characters";
-          if (!/[A-Z]/.test(value)) return "Include at least one uppercase letter";
-          if (!/[0-9]/.test(value)) return "Include at least one number";
-        }
-        return "";
-
-      case "confirmPassword":
-        if (form.password && value !== form.password) return "Passwords do not match";
         return "";
       default:
         return "";
@@ -117,11 +93,8 @@ const UserProfile = () => {
     const nextErrors = {
       firstname: validateField("firstname", form.firstname),
       lastname: validateField("lastname", form.lastname),
-      street: validateField("street", form.address.street),
       city: validateField("city", form.address.city),
-      state: validateField("state", form.address.state),
-      password: validateField("password", form.password),
-      confirmPassword: validateField("confirmPassword", form.confirmPassword),
+      country: validateField("country", form.address.country),
     };
 
     setErrors(nextErrors);
@@ -141,18 +114,11 @@ const UserProfile = () => {
     }
 
     // ADDRESS FIELDS
-    if (["street", "city", "state"].includes(name)) {
+    if (["city", "country"].includes(name)) {
       setForm({
         ...form,
         address: { ...form.address, [name]: value },
       });
-      setErrors({ ...errors, [name]: validateField(name, value) });
-      return;
-    }
-
-    // PASSWORD FIELDS
-    if (["password", "confirmPassword"].includes(name)) {
-      setForm({ ...form, [name]: value });
       setErrors({ ...errors, [name]: validateField(name, value) });
       return;
     }
@@ -172,16 +138,11 @@ const UserProfile = () => {
       firstname: form.firstname || undefined,
       lastname: form.lastname || undefined,
       birthday: form.birthday || undefined,
-      address: {
-        street: form.address.street || undefined,
-        city: form.address.city || undefined,
-        state: form.address.state || undefined,
-      },
+      "address.city": form.address.city || undefined,
+      "address.country": form.address.country || undefined,
     };
 
-    if (form.password) {
-      payload.password = form.password;
-    }
+    delete payload.image;
 
     try {
       console.log("Submitting payload:", payload);
@@ -269,13 +230,6 @@ const UserProfile = () => {
                   value={form.birthday}
                   onChange={handleChange}
                 />
-                <Input
-                  name="street"
-                  placeholder="Street address"
-                  value={form.address.street}
-                  onChange={handleChange}
-                  error={errors.street}
-                />
 
                 <div className="flex flex-col md:flex-row gap-4">
                   <Input
@@ -287,32 +241,11 @@ const UserProfile = () => {
                     className="flex-1"
                   />
                   <Input
-                    name="state"
-                    placeholder="State"
-                    value={form.address.state}
+                    name="country"
+                    placeholder="Country"
+                    value={form.address.country}
                     onChange={handleChange}
-                    error={errors.state}
-                    className="flex-1"
-                  />
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4">
-                  <Input
-                    name="password"
-                    type="password"
-                    placeholder="New password (leave blank to keep current)"
-                    value={form.password}
-                    onChange={handleChange}
-                    error={errors.password}
-                    className="flex-1"
-                  />
-                  <Input
-                    name="confirmPassword"
-                    type="password"
-                    placeholder="Confirm new password"
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                    error={errors.confirmPassword}
+                    error={errors.country}
                     className="flex-1"
                   />
                 </div>

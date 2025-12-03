@@ -1,4 +1,4 @@
-import Header from "../components/Header";
+import Header from "../components/header";
 import SideImage from "../components/sideimage";
 import SignUpForm from "../components/SignUpForm";
 

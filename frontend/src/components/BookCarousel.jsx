@@ -9,8 +9,8 @@ const BookCard = ({book}) => (
 );
 
 const BookCarousel = ({books}) => {
-    const navigateToAllBooks = () => {
-      window.location.href = '/books';
+    const navigateToRecentBooks = () => {
+      window.location.href = '/recentbooks';
     };
   return (
     <div className="overflow-x-auto py-4">
@@ -18,8 +18,8 @@ const BookCarousel = ({books}) => {
         {books.map(b => <BookCard key={b.id} book={b} />)}
       </div>
         <div className="mt-4 flex justify-end">
-          <button onClick={navigateToAllBooks} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-            All Books
+          <button onClick={navigateToRecentBooks} className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+            Aller à la page RecentBooks
           </button>
         </div>
     </div>

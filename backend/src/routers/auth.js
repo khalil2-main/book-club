@@ -64,7 +64,6 @@ router.post('/login', checkSchema(AuthUserValidatorsScheama), async (req, res) =
 
     return res.status(200).send({ user });
   } catch (err) {
-    console.error('Login error:', err);
     const errors = {};
 
     if (err.message === 'incorrect Email')
@@ -73,12 +72,7 @@ router.post('/login', checkSchema(AuthUserValidatorsScheama), async (req, res) =
     if (err.message === 'incorrect password')
       errors.password = 'The password is incorrect';
 
-    // If we have specific errors, return 400, otherwise return 500
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).send({ errors });
-    }
-
-    return res.status(500).send({ error: 'Internal Server Error' });
+    return res.status(400).send({ errors });
   }
 });
 

@@ -15,9 +15,8 @@ const SignUpForm = () => {
     email: "",
     birthday: "",
     address: {
-      street: "",
       city: "",
-      state: ""
+      country: ""
     },
     password: "",
     confirmPassword: "",
@@ -45,19 +44,11 @@ const SignUpForm = () => {
         if (!value) return "Birthday is required";
         return "";
 
-      case "street":
-        if (!value.trim()) return "Street address is required";
-        if (value.length < 3) return "Enter a valid street address";
-        return "";
+      // removed location validation (not used on signup)
 
       case "city":
-        if (!value.trim()) return "City is required";
-        if (!letterRegex.test(value)) return "Letters only";
-        return "";
-
-      case "state":
-        if (!value.trim()) return "State is required";
-        if (!letterRegex.test(value)) return "Letters only";
+      case "country":
+        if (value && !letterRegex.test(value)) return "Letters only";
         return "";
 
       case "password":
@@ -83,7 +74,7 @@ const SignUpForm = () => {
 
     let updatedForm;
 
-    if (["street", "city", "state"].includes(name)) {
+    if (["city", "country"].includes(name)) {
       updatedForm = {
         ...form,
         address: {
@@ -199,13 +190,6 @@ const SignUpForm = () => {
         />
 
         {/* Street/Location removed as requested */}
-        <Input
-          name="street"
-          placeholder="Street address"
-          value={form.address.street}
-          onChange={handleChange}
-          error={errors.street}
-        />
 
         <div className="flex flex-col md:flex-row gap-4">
           <Input
@@ -218,11 +202,11 @@ const SignUpForm = () => {
           />
 
           <Input
-            name="state"
-            placeholder="State"
-            value={form.address.state}
+            name="country"
+            placeholder="Country"
+            value={form.address.country}
             onChange={handleChange}
-            error={errors.state}
+            error={errors.country}
             className="flex-1"
           />
         </div>
