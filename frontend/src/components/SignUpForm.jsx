@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import Input from "../components/Input";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const letterRegex = /^[\p{L}\p{M}]+$/u;
 
 const SignUpForm = () => {
   const navigate = useNavigate();
+  const {checkAuth}=useAuth()
 
   const [form, setForm] = useState({
     firstname: "",
@@ -15,6 +17,7 @@ const SignUpForm = () => {
     email: "",
     birthday: "",
     address: {
+      location:"",
       city: "",
       country: ""
     },
@@ -45,7 +48,8 @@ const SignUpForm = () => {
         return "";
 
       // removed location validation (not used on signup)
-
+      case "location":
+        return "";
       case "city":
       case "country":
         if (value && !letterRegex.test(value)) return "Letters only";
@@ -74,7 +78,7 @@ const SignUpForm = () => {
 
     let updatedForm;
 
-    if (["city", "country"].includes(name)) {
+    if (["location","city", "country"].includes(name)) {
       updatedForm = {
         ...form,
         address: {
@@ -129,6 +133,7 @@ const SignUpForm = () => {
     try {
       await axios.post("/api/register", form);
       console.log("Sent:", form);
+      await checkAuth();
       navigate("/");
     } catch (err) {
       if(err.response.data.errors) setErrors(err.response.data.errors)
@@ -189,7 +194,13 @@ const SignUpForm = () => {
           error={errors.birthday}
         />
 
-        {/* Street/Location removed as requested */}
+        <Input
+          name="location"
+          placeholder="Adresse"
+          value={form.address.location}
+          onChange={handleChange}
+          error={errors.location}
+        />
 
         <div className="flex flex-col md:flex-row gap-4">
           <Input

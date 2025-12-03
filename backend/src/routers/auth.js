@@ -3,7 +3,8 @@ const User = require('../models/user');
 const {matchedData,checkSchema, validationResult}= require('express-validator')
 const {createUserValidatorsScheama,AuthUserValidatorsScheama} = require('../config/UservalidationSchema');
 const { hashPassword, creatToken, erorrHandler } = require('../utils/helpers');
-
+const jwt= require('jsonwebtoken');
+const { requireAuth } = require('../middlewares/auth');
 const router = Router();
 const maxAge = 3 * 24 * 60 * 60; 
 
@@ -76,9 +77,35 @@ router.post('/login', checkSchema(AuthUserValidatorsScheama), async (req, res) =
   }
 });
 
-// ----------------------
-//      LOGOUT
-// ----------------------
+// Check token
+router.get('/check',(req,res)=>{
+  const token=req.cookies.jwt;
+
+  if(!token)return res.status(200).send({auth:false})
+
+  jwt.verify(token, process.env.TOKEN_KEY_SECRET, (err,decodedToken)=>{
+    if(err)return res.status(200).send({auth:false})
+    
+    return res.status(200).send({
+      auth:true,
+   
+    })
+  })
+})
+
+router.get('/isAdmin',requireAuth,async(req,res)=>{
+  try{const userId =req.userId
+  const user= await User.findById(userId);
+  if(!user) return res.status(400).send({err: "User not found"})
+  return res.status(200).send({admin:user.admin})}
+  catch(err){
+    console.log(err);
+    return res.status(500).send({message:'server error'})
+  }
+})
+
+//     LOGOUT
+
 router.get('/logout', (req, res) => {
   res.clearCookie('jwt');
   return res.status(200).send('You have been logged out successfully');
