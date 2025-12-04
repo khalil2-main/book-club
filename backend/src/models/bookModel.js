@@ -58,19 +58,9 @@ const bookSchema = new mongoose.Schema({
     max: [new Date().getFullYear(), "Published year cannot be in the future"]
   },
 
-  coverImage: {
-    data: Buffer,
-    contentType: {
-      type: String,
-      validate: {
-        validator: function (v) {
-          if (!v) return true; 
-          return /^image\/(jpeg|jpg|png|gif|webp)$/i.test(v);
-        },
-        message: "Cover image must be a valid image type (jpeg, jpg, png, gif, webp)"
-      }
-    }
-  },
+  coverImageUrl: { type: String, required: true},
+  
+
 
   rating: { 
     type: Number, 
