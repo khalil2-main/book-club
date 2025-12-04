@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const User = require('../models/user');
 const {matchedData,checkSchema, validationResult}= require('express-validator')
-const {createUserValidatorsScheama,AuthUserValidatorsScheama} = require('../config/UservalidationSchema');
+const {createUserValidatorsScheama,AuthUserValidatorsScheama} = require('../validators/UservalidationSchema');
 const { hashPassword, creatToken, erorrHandler } = require('../utils/helpers');
 const jwt= require('jsonwebtoken');
 const { requireAuth } = require('../middlewares/auth');
