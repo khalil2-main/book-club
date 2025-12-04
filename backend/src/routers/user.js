@@ -2,7 +2,7 @@ const { Router } = require('express');
 const User= require('./../models/user')
 
 const { matchedData,checkSchema, validationResult}= require('express-validator')
-const {updateUserValidatorsScheama}= require('../config/UservalidationSchema');
+const {updateUserValidatorsScheama}= require('../validators/UservalidationSchema');
 const { hashPassword } = require('../utils/helpers');
 
 const { adminAuth}= require('../middlewares/auth');
@@ -51,7 +51,7 @@ router.patch('/me',checkSchema(updateUserValidatorsScheama),async (req, res)=>{
   }  
   });
 //-- Admin user mangemnt api --//
-      // get all users
+ // get all users
 router.get('',adminAuth, async (req, res) => {
   try {
     const users = await User.find().sort({prenom:1,nom:1}); 
@@ -61,6 +61,8 @@ router.get('',adminAuth, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
 //filtering users
 router.get("/search",adminAuth , async (req, res) => {
   try {
