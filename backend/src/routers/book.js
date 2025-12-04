@@ -1,6 +1,7 @@
 const { Router}= require('express')
-const Book = require('../models/bookModel')
-const {validationResult, matchedData}=require('express-validator')
+const Book = require('./../models/bookModel')
+const {validationResult, matchedData,}=require('express-validator');
+const bookValidator =require ('../validators/books-validator-schema')
 
 const router=Router();
 
@@ -8,10 +9,10 @@ const router=Router();
 
 
 // show the top 15 puppolair book
-router.get('/', async(req, res) => {
+router.get('/top', async(req, res) => {
   try{
     const books= await Book.find().sort({rating:1}).limit(15); 
-    res.status(200).send({books})
+    res.status(200).send({books});
   }
   catch(err){
     console.log(err);
@@ -20,7 +21,7 @@ router.get('/', async(req, res) => {
   
 });
 
-// 
+// get all book 20 per page
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -39,7 +40,13 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', bookValidator, async (req, res) => {
+
+
+
+
+
+
+router.post('/', bookValidator , async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ error: "Validation failed",details: errors.array()
@@ -55,7 +62,26 @@ router.post('/', bookValidator, async (req, res) => {
     res.status(500).json({ error: "BAD REQEST" });
   }
 });
-
+router.patch('/:id', bookValidator, async (req, res) => {
+  const {id}= req.params
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: "Validation failed",details: errors.array()
+    });
+  }
+  const data = matchedData(req);
+  try {
+    
+    const book = await findByIdAndUpdate(id,data,{
+      new:true,
+      runValidators:true
+    })
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "BAD REQEST" });
+  }
+});
 
 
 
