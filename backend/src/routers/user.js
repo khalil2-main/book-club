@@ -42,15 +42,19 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
     if (!user) return res.status(400).send({ error: 'document not found' });
       if (req.file) {
 
-      //delete the old picture
-      const oldImage= path.join(__dirname,'../..',user.profileImage)
-      fs.access(oldImage, fs.constants.F_OK, (err)=>{
-        if(!err){
-          fs.unlink(oldImage, (err)=>{
-            if(err) console.err('Failed to delete old image')
-          });
-        }
-      });
+      //delete the old picture if it exist
+   if (req.file && user.profileImage) {
+  const oldImagePath = path.join(__dirname, '../..', user.profileImage);
+
+    fs.access(oldImagePath, fs.constants.F_OK, (err) => {
+      if (!err) {
+        fs.unlink(oldImagePath, (err) => {
+          if (err) console.error('Failed to delete old image:', err);
+        });
+      }
+  });
+}
+
       data.profileImage = `/uploads/users/${req.file.filename}`;
     }
       
