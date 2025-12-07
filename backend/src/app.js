@@ -2,11 +2,12 @@ const express= require('express');
 const db =require('./config/db');
 const  routes = require('./routers/index');
 const cookieParser = require('cookie-parser')
-
+const path = require('path');
 
 require('dotenv').config({quiet:true});
 
 const app = express();
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // server port
 const PORT=process.env.PORT|| 3000;
