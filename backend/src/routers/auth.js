@@ -1,7 +1,7 @@
 const { Router } = require('express');
-const User = require('../models/user');
-const {matchedData,checkSchema, validationResult}= require('express-validator')
-const {createUserValidatorsScheama,AuthUserValidatorsScheama} = require('../validators/UservalidationSchema');
+const User = require('../models/userModel');
+const {matchedData, validationResult}= require('express-validator')
+const {createUserValidator,authUserValidator} = require('../validators/UservalidationSchema');
 const { hashPassword, creatToken, erorrHandler } = require('../utils/helpers');
 const jwt= require('jsonwebtoken');
 const { requireAuth } = require('../middlewares/auth');
@@ -11,7 +11,7 @@ const maxAge = 3 * 24 * 60 * 60;
 
 //   REGISTER USER
 -
-router.post('/register', checkSchema(createUserValidatorsScheama), async (req, res) => {
+router.post('/register', createUserValidator, async (req, res) => {
   const result = validationResult(req);
 
   if (!result.isEmpty()) {
@@ -44,7 +44,7 @@ router.post('/register', checkSchema(createUserValidatorsScheama), async (req, r
 
 //      LOGIN
 
-router.post('/login', checkSchema(AuthUserValidatorsScheama), async (req, res) => {
+router.post('/login', authUserValidator, async (req, res) => {
   const result = validationResult(req);
 
   if (!result.isEmpty()) {

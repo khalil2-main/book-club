@@ -1,8 +1,8 @@
 const { Router } = require('express');
-const User= require('./../models/user')
+const User= require('./../models/userModel')
 
-const { matchedData,checkSchema, validationResult}= require('express-validator')
-const {updateUserValidatorsScheama}= require('../validators/UservalidationSchema');
+const { matchedData, validationResult}= require('express-validator')
+const {updateUserValidator}= require('../validators/UservalidationSchema');
 const { hashPassword } = require('../utils/helpers');
 
 const { adminAuth}= require('../middlewares/auth');
@@ -27,7 +27,7 @@ router.get('/me', async(req, res)=>{
 });
 
 // --User update api --//
-router.patch('/me',checkSchema(updateUserValidatorsScheama),async (req, res)=>{
+router.patch('/me',updateUserValidator,async (req, res)=>{
     try{
       const userId= req.userId;
       const result= validationResult(req)
@@ -50,6 +50,8 @@ router.patch('/me',checkSchema(updateUserValidatorsScheama),async (req, res)=>{
       return res.status(400).send({errors});
   }  
   });
+
+
 //-- Admin user mangemnt api --//
  // get all users
 router.get('',adminAuth, async (req, res) => {
@@ -115,7 +117,7 @@ router.get('/:id',async (req, res)=>{
 
 
 //update user information
-router.patch('/:id',checkSchema(updateUserValidatorsScheama),async (req, res)=>{
+router.patch('/:id',updateUserValidator,async (req, res)=>{
     try{
       const {id}= req.params;
       const result= validationResult(req)
