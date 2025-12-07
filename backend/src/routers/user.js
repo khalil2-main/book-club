@@ -4,8 +4,8 @@ const User= require('./../models/userModel')
 const { matchedData, validationResult}= require('express-validator')
 const {updateUserValidator}= require('../validators/UservalidationSchema');
 const { hashPassword } = require('../utils/helpers');
-
 const { adminAuth}= require('../middlewares/auth');
+const upload= require('../middlewares/upload')
 
 
 const router = Router();
@@ -27,7 +27,7 @@ router.get('/me', async(req, res)=>{
 });
 
 // --User update api --//
-router.patch('/me',updateUserValidator,async (req, res)=>{
+router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>{
     try{
       const userId= req.userId;
       const result= validationResult(req)
@@ -35,13 +35,19 @@ router.patch('/me',updateUserValidator,async (req, res)=>{
        erorrHandler(result)
         res.status(400).send({errors});}
       const data= matchedData(req);
-      if(data.password)data.password=hashPassword(data.password)
+      
+      if (req.file) {
+      data.profileImage = `/uploads/users/${req.file.filename}`;
+    }
+      
       const user = await User.findByIdAndUpdate(userId,data,{
         new: true,
         runValidators:true
       });
       if(!user) return res.status(400).send({error: 'document not found' });
       return res.status(200).send({user})
+
+      
     }catch(err){
      //duplicate error code
       if(err.code=== 11000){

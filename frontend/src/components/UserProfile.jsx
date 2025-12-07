@@ -8,13 +8,12 @@ import noImage from "../assets/images/no-picture.png";
 
 const letterRegex = /^[\p{L}\p{M} ]+$/u;
 
-
 // ---------------- update function ----------------
-const updateUser = async (data) => {
-
+const updateUser = async (formData) => {
   try {
-    const res = await axios.patch("/api/user/me", data, {
+    const res = await axios.patch("/api/user/me", formData, {
       withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return res.data;
   } catch (err) {
@@ -30,7 +29,7 @@ const UserProfile = () => {
     email: "",
     birthday: "",
     address: {
-      location:"",
+      location: "",
       city: "",
       country: "",
     },
@@ -43,33 +42,32 @@ const UserProfile = () => {
   const navigate = useNavigate();
 
   // ---------------- FETCH USER ----------------
-  ///use effect reloaded when the component is mounted
-  //refaiche
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        //get user information
-    
-          const res = await axios.get("/api/user/me", { withCredentials: true });
+        const res = await axios.get("/api/user/me", { withCredentials: true });
         const data = res.data.user;
-       
 
-       setForm({
-        firstname: data.firstname || "",
-        lastname: data.lastname || "",
-        email: data.email || "",
-        birthday: data.birthday ? data.birthday.split("T")[0] : "",
-        address: {
-          location: data.address?.location || "",
-          city: data.address?.city || "",
-          country: data.address?.country || "",
-        },
-        image: null,
-      });
+        setForm({
+          firstname: data.firstname || "",
+          lastname: data.lastname || "",
+          email: data.email || "",
+          birthday: data.birthday ? data.birthday.split("T")[0] : "",
+          address: {
+            location: data.address?.location || "",
+            city: data.address?.city || "",
+            country: data.address?.country || "",
+          },
+          image: data.profileImage
+        });
 
-        setPreview(data.image || noImage);
+        setPreview(
+    data.profileImage
+      ? data.profileImage // e.g., "/uploads/users/1765127427971-image.png"
+      : noImage
+);
+
       } catch (err) {
-   
         console.error("Failed to fetch user:", err);
       } finally {
         setLoading(false);
@@ -84,11 +82,9 @@ const UserProfile = () => {
     switch (name) {
       case "firstname":
       case "lastname":
-        if (!value || value.length < 2) return "Must be at least 2 characters";
-        if (value && !letterRegex.test(value)) return "Letters only";
+        if (!value || value.length < 3) return "Must be at least 3 characters";
+        if (!letterRegex.test(value)) return "Letters only";
         return "";
-      case "location":
-      return "";
       case "city":
       case "country":
         if (value && !letterRegex.test(value)) return "Letters only";
@@ -105,7 +101,6 @@ const UserProfile = () => {
       city: validateField("city", form.address.city),
       country: validateField("country", form.address.country),
     };
-
     setErrors(nextErrors);
     return Object.values(nextErrors).every((msg) => !msg);
   };
@@ -114,16 +109,22 @@ const UserProfile = () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    // IMAGE PREVIEW ONLY
+    // IMAGE PREVIEW
     if (name === "image") {
       const file = files[0];
       setForm({ ...form, image: file });
-      if (file) setPreview(URL.createObjectURL(file));
+      if (file) {
+        const previewUrl = URL.createObjectURL(file);
+        setPreview(previewUrl);
+
+        // Clean up previous object URL on unmount
+        return () => URL.revokeObjectURL(previewUrl);
+      }
       return;
     }
 
     // ADDRESS FIELDS
-    if (["location","city", "country"].includes(name)) {
+    if (["location", "city", "country"].includes(name)) {
       setForm({
         ...form,
         address: { ...form.address, [name]: value },
@@ -142,28 +143,21 @@ const UserProfile = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // Prepare payload (skip image)
-    const payload = {
-      firstname: form.firstname || undefined,
-      lastname: form.lastname || undefined,
-      birthday: form.birthday || undefined,
-      "address.location": form.address.location || "",
-      "address.city": form.address.city || "",
-      "address.country": form.address.country || "",
-    };
-
-    delete payload.image;
+    const formData = new FormData();
+    formData.append("firstname", form.firstname);
+    formData.append("lastname", form.lastname);
+    formData.append("birthday", form.birthday);
+    formData.append("address", JSON.stringify(form.address)); // send address as JSON
+    if (form.image) formData.append("image", form.image);
 
     try {
-     
-      await updateUser(payload);
-     
+      await updateUser(formData);
+      console.log("Profile updated successfully!");
     } catch (err) {
-      alert(err);
+      console.log(err?.response?.data?.errors || "Update failed");
     }
   };
 
-  // ---------------- UI ----------------
   if (loading) return <div className="p-6 text-center">Loading...</div>;
 
   return (
@@ -240,13 +234,14 @@ const UserProfile = () => {
                   value={form.birthday}
                   onChange={handleChange}
                 />
+
                 <Input
                   name="location"
                   placeholder="Street / Location"
                   value={form.address.location}
                   onChange={handleChange}
-                  error={errors.location}
                 />
+
                 <div className="flex flex-col md:flex-row gap-4">
                   <Input
                     name="city"
