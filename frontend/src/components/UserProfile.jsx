@@ -169,6 +169,7 @@ const UserProfile = () => {
           <div className="w-full md:w-1/2 flex items-center justify-center p-6">
             <div className="w-full max-w-2xl p-6">
               <div className="flex items-center justify-between mb-6">
+                <div></div>
                 <h2 className="text-2xl font-semibold">Edit Profile</h2>
                 <button
                   type="button"
@@ -179,21 +180,23 @@ const UserProfile = () => {
                 </button>
               </div>
 
-              {/* PROFILE IMAGE */}
               <div className="flex items-center gap-6 mb-6">
-                <img
+                
+              {/* PROFILE IMAGE */}
+                <div className="w-full flex justify-center mb-6">
+                  <label htmlFor="imageUpload" className="cursor-pointer">
+                    <img
                   src={preview}
                   alt="Preview"
-                  className="w-20 h-20 rounded-full object-cover border"
-                />
-                <div>
-                  <label className="text-sm font-semibold">Profile Image</label>
+                  className="w-28 h-28 rounded-full object-cover border hover:opacity-80 transition" />
+                  </label>
                   <input
+                    id="imageUpload"
                     type="file"
                     name="image"
                     accept="image/*"
                     onChange={handleChange}
-                    className="mt-1 block"
+                    className="hidden"
                   />
                 </div>
               </div>
