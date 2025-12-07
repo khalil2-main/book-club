@@ -61,8 +61,7 @@ const UserProfile = () => {
           image: data.profileImage
         });
 
-        setPreview(
-    data.profileImage
+        setPreview(data.profileImage
       ? data.profileImage // e.g., "/uploads/users/1765127427971-image.png"
       : noImage
 );
