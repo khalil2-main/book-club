@@ -1,5 +1,8 @@
 const { Router } = require('express');
 const User= require('./../models/userModel')
+const fs = require('fs');
+const path = require('path');
+
 
 const { matchedData, validationResult}= require('express-validator')
 const {updateUserValidator}= require('../validators/UservalidationSchema');
@@ -35,17 +38,28 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
        erorrHandler(result)
         res.status(400).send({errors});}
       const data= matchedData(req);
-      
+      const user = await User.findById(userId);
+    if (!user) return res.status(400).send({ error: 'document not found' });
       if (req.file) {
+
+      //delete the old picture
+      const oldImage= path.join(__dirname,'../..',user.profileImage)
+      fs.access(oldImage, fs.constants.F_OK, (err)=>{
+        if(!err){
+          fs.unlink(oldImage, (err)=>{
+            if(err) console.err('Failed to delete old image')
+          });
+        }
+      });
       data.profileImage = `/uploads/users/${req.file.filename}`;
     }
       
-      const user = await User.findByIdAndUpdate(userId,data,{
+      const updateUser = await User.findByIdAndUpdate(userId,data,{
         new: true,
         runValidators:true
       });
-      if(!user) return res.status(400).send({error: 'document not found' });
-      return res.status(200).send({user})
+      
+      return res.status(200).send({updateUser})
 
       
     }catch(err){
