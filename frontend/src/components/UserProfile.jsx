@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import Input from "./Input";
 import axios from "axios";
 import noImage from "../assets/images/no-picture.png";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const letterRegex = /^[\p{L}\p{M} ]+$/u;
 
