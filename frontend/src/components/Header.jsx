@@ -3,35 +3,24 @@ import { useState, useRef, useEffect } from "react";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 import noImage from "../assets/images/no-picture.png";
-import axios from "axios";
+
 const Header = () => {
   const navigate = useNavigate();
-  const { auth, admin, logout } = useAuth();
+  const { auth, admin, logout, user } = useAuth();
 
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef(null);
   const [preview, setPreview] = useState(noImage);
 
-   const fetchUser = async () => {
-      try {
-        const res = await axios.get("/api/user/me", { withCredentials: true });
-        const data = res.data.user;
-        
-        setPreview(data.profileImage
-      ? data.profileImage // e.g., "/uploads/users/1765127427971-image.png"
-      : noImage
-        );
+ 
         
 
-      } catch (err) {
-        console.error("Failed to fetch user:", err);
-      } 
-    };
+    
   useEffect(()=>{
-    if(auth){
-      fetchUser();
+    if(auth && user){
+      setPreview(user.profileImage ?? noImage);
     }
-  },[auth])  
+  },[auth, user])  
   // Close menu when clicking outside
   useEffect(() => {
    
