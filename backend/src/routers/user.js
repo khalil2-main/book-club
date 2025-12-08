@@ -8,11 +8,12 @@ const { matchedData, validationResult}= require('express-validator')
 const {updateUserValidator}= require('../validators/UservalidationSchema');
 const { hashPassword } = require('../utils/helpers');
 const { adminAuth}= require('../middlewares/auth');
-const upload= require('../middlewares/upload')
+const creatUploader= require('../middlewares/upload')
 
 
 const router = Router();
- const errors= {}
+const upload=creatUploader('users');
+const errors= {}
 
 
 //--Authonticated user mangemnt api--//
