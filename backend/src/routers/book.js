@@ -1,12 +1,12 @@
 const { Router}= require('express')
 const Book = require('./../models/bookModel')
 const {validationResult, matchedData,}=require('express-validator');
-const {bookCreationValidator,bookUpdateValidator} =require ('../validators/books-validator-schema')
-
+const {bookCreationValidator,bookUpdateValidator, isParamValidator} =require ('../validators/books-validator-schema')
+const creatUploader= require('../middlewares/upload')
 const router=Router();
-
-
-
+const fs = require('fs');
+const path = require('path');
+const upload=creatUploader('books');
 
 // show the top 15 puppolair book
 router.get('/top', async(req, res) => {
@@ -41,12 +41,9 @@ router.get('/', async (req, res) => {
 });
 
 
+//Create a book
 
-
-
-
-
-router.post('/', bookCreationValidator , async (req, res) => {
+router.post('/',upload.single('image'), bookCreationValidator , async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ error: "Validation failed",details: errors.array()
@@ -55,6 +52,11 @@ router.post('/', bookCreationValidator , async (req, res) => {
   const data = matchedData(req);
   try {
     const book = new Book(data);
+
+    if(req.file){
+      
+     data.coverImageUrl= `/uploads/books/${req.file.filename}`
+    }
     const savedBook = await book.save();
     res.status(201).json({ message: "Book created", book: savedBook });
   } catch (err) {
@@ -62,7 +64,7 @@ router.post('/', bookCreationValidator , async (req, res) => {
     res.status(500).json({ error: "BAD REQEST" });
   }
 });
-router.patch('/:id', bookUpdateValidator, async (req, res) => {
+router.patch('/:id',isParamValidator, bookUpdateValidator, async (req, res) => {
   const {id}= req.params
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
