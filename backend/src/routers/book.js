@@ -1,7 +1,7 @@
 const { Router}= require('express')
 const Book = require('./../models/bookModel')
 const {validationResult, matchedData,}=require('express-validator');
-const bookValidator =require ('../validators/books-validator-schema')
+const {bookCreationValidator,bookUpdateValidator} =require ('../validators/books-validator-schema')
 
 const router=Router();
 
@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
 
 
 
-router.post('/', bookValidator , async (req, res) => {
+router.post('/', bookCreationValidator , async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ error: "Validation failed",details: errors.array()
@@ -62,7 +62,7 @@ router.post('/', bookValidator , async (req, res) => {
     res.status(500).json({ error: "BAD REQEST" });
   }
 });
-router.patch('/:id', bookValidator, async (req, res) => {
+router.patch('/:id', bookUpdateValidator, async (req, res) => {
   const {id}= req.params
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
