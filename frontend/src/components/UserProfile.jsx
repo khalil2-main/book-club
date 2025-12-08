@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Header from "./Header";
 import SideImage from "./sideimage";
+import { useAuth } from "../context/AuthContext";
 import Input from "./Input";
 import axios from "axios";
 import noImage from "../assets/images/no-picture.png";
+import toast, { Toaster } from "react-hot-toast";
 
 const letterRegex = /^[\p{L}\p{M} ]+$/u;
 
 // ---------------- update function ----------------
+
 const updateUser = async (formData) => {
   try {
     const res = await axios.patch("/api/user/me", formData, {
@@ -23,6 +26,7 @@ const updateUser = async (formData) => {
 };
 
 const UserProfile = () => {
+  const { setUser, user } = useAuth();
   const [form, setForm] = useState({
     firstname: "",
     lastname: "",
@@ -43,38 +47,28 @@ const UserProfile = () => {
 
   // ---------------- FETCH USER ----------------
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get("/api/user/me", { withCredentials: true });
-        const data = res.data.user;
+   
 
         setForm({
-          firstname: data.firstname || "",
-          lastname: data.lastname || "",
-          email: data.email || "",
-          birthday: data.birthday ? data.birthday.split("T")[0] : "",
+          firstname: user.firstname || "",
+          lastname: user.lastname || "",
+          email: user.email || "",
+          birthday: user.birthday ? user.birthday.split("T")[0] : "",
           address: {
-            location: data.address?.location || "",
-            city: data.address?.city || "",
-            country: data.address?.country || "",
+            location: user.address?.location || "",
+            city: user.address?.city || "",
+            country: user.address?.country || "",
           },
-          image: data.profileImage
+          image: user.profileImage
         });
 
-        setPreview(data.profileImage
-      ? data.profileImage // e.g., "/uploads/users/1765127427971-image.png"
+        setPreview(user.profileImage
+      ? user.profileImage 
       : noImage
-);
-
-      } catch (err) {
-        console.error("Failed to fetch user:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+    );
+    setLoading(false)
+  
+  }, [user]);
 
   // ---------------- VALIDATION ----------------
   const validateField = (name, value) => {
@@ -150,10 +144,17 @@ const UserProfile = () => {
     if (form.image) formData.append("image", form.image);
 
     try {
-      await updateUser(formData);
-      console.log("Profile updated successfully!");
+      const updated=await updateUser(formData);
+      console.log(updated)
+      setUser((prev) => ({
+      ...prev,
+      ...updated.updateUser,                // update ALL changed fields
+      profileImage: updated.updateUser.profileImage 
+      }));
+
+      toast.success("Profile updated successfully!");
     } catch (err) {
-      console.log(err?.response?.data?.errors || "Update failed");
+      toast.error(err?.response?.data?.errors || "Update failed");
     }
   };
 

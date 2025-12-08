@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(false);
   const [admin, setAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   const checkAuth = async () => {
     try {
@@ -18,6 +19,9 @@ export const AuthProvider = ({ children }) => {
         const resAdmin = await axios.get("/api/isAdmin", { withCredentials: true });
         setAdmin(resAdmin.data.admin);
         
+
+         const resUser = await axios.get("/api/user/me", { withCredentials: true });
+        setUser(resUser.data.user);
       } else {
         setAdmin(false);
       }
@@ -42,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
   
   return (
-    <AuthContext.Provider value={{ auth, admin, loading, checkAuth, logout }}>
+    <AuthContext.Provider value={{ auth, admin, loading,user, setUser, checkAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );
