@@ -2,7 +2,7 @@
 import React from "react";
 import Header from "../components/Header";
 import SideImage from "../components/sideimage";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function HomePage(){
