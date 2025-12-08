@@ -10,10 +10,30 @@ import RecentBooks from "./pages/RecentBooks";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import NotFound from "./pages/Notfound";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <>
+      <Toaster position="bottom-right" 
+      toastOptions={{
+    success: {
+      duration: 3000,
+      style: {
+        background: "#4f46e5",
+        color: "#fff",
+      },
+    },
+    error: {
+      duration: 4000,
+      style: {
+        background: "#dc2626",
+        color: "#fff",
+      },
+    },
+    }}
+      />
+
       <Routes>
         
         {/* Public Routes */}
