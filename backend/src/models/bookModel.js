@@ -20,7 +20,7 @@ const bookSchema = new mongoose.Schema({
 
   pageNumbers: { 
     type: Number, 
-    min: [1, "Page number must be at least 1"],
+    min: [5, "Page number must be at least 1"],
     max: [3000, "Page number cannot exceed 3,000"]
   },
 
@@ -54,7 +54,7 @@ const bookSchema = new mongoose.Schema({
 
   publishedYear: { 
     type: Number,
-    min: [0, "Published year cannot be negative"],
+    min: [1900, "Published year cannot be negative"],
     max: [new Date().getFullYear(), "Published year cannot be in the future"]
   },
 
