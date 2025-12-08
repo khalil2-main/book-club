@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import SideImage from "../components/sideimage";
 

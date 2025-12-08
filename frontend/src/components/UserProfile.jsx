@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import SideImage from "./sideimage";
 import { useAuth } from "../context/AuthContext";
