@@ -7,6 +7,7 @@ import AdminUsers from "./pages/AdminUsers";
 import Dashboard from "./pages/Dashboard";
 import HomePage from "./pages/HomePage";
 import RecentBooks from "./pages/RecentBooks";
+import AddBook from "./pages/AddBook";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import NotFound from "./pages/Notfound";
@@ -45,6 +46,7 @@ const App = () => {
         <Route path="dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}></Route>
         <Route path="admin" element={<AdminRoute><AdminUsers/></AdminRoute>}></Route>
           <Route path="recentbooks" element={<ProtectedRoute><RecentBooks/></ProtectedRoute>}></Route>
+       <Route path="addBook" element={<ProtectedRoute> <AddBook/> </ProtectedRoute>}></Route>
 
         <Route path="*" element={<NotFound/>} ></Route>
       </Routes>
