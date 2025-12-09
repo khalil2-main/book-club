@@ -1,11 +1,9 @@
-/* Revised BookForm with Summary field moved to the end */
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import noImage from "../assets/images/default_book_cover.jpg";
+import Input from "../components/Input";
 
 export default function BookForm() {
-  const navigate = useNavigate();
-
   const [form, setForm] = useState({
     title: "",
     author: "",
@@ -15,45 +13,139 @@ export default function BookForm() {
     summary: "",
     isbn: "",
     publishedYear: "",
-    coverImageUrl: "",
-    rating: "",
     status: "reading",
+    image: null,  
   });
 
-  const [preview, setPreview] = useState("");
+  const [errors, setErrors] = useState({});
+  const [preview, setPreview] = useState(noImage);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [submitError, setSubmitError] = useState("");
+
+  // VALIDATION
+  const validateField = (name, value) => {
+    switch (name) {
+      case "title":
+        return !value.trim() || value.length < 3
+          ? "Title must be at least 3 characters."
+          : "";
+
+      case "author":
+        return !value.trim() || value.length < 3
+          ? "Author must be at least 3 characters."
+          : "";
+
+      case "language":
+        return value && value.length < 3
+          ? "Language must be at least 3 characters."
+          : "";
+
+      case "pageNumbers":
+        return value && (value < 5 || value > 3000)
+          ? "Pages must be between 5 and 3000."
+          : "";
+
+      case "genres":
+        return !value.trim() ? "Genres cannot be empty." : "";
+
+      case "isbn":
+        return value && !/^\d{10}(\d{3})?$/.test(value)
+          ? "ISBN must be 10 or 13 digits."
+          : "";
+
+      case "publishedYear":
+        return value && (value < 1700 || value > new Date().getFullYear())
+          ? "Invalid published year."
+          : "";
+
+      case "summary":
+        return value.length > 2000
+          ? "Summary cannot exceed 2000 characters."
+          : "";
+
+      default:
+        return "";
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value),
+    }));
   };
 
+  // IMAGE UPLOAD
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    setForm({ ...form, coverImageUrl: url });
+
+    setPreview(URL.createObjectURL(file));
+    setForm((prev) => ({ ...prev, image: file }));
   };
 
+  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+    setSubmitError("");
+
+    // Final validation
+    const newErrors = {};
+    Object.keys(form).forEach((key) => {
+      const err = validateField(key, form[key]);
+      if (err) newErrors[key] = err;
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const payload = {
-        ...form,
-        pageNumbers: Number(form.pageNumbers),
-        rating: Number(form.rating),
-        genres: form.genres.split(',').map((g) => g.trim()).filter(Boolean),
-      };
+      const formData = new FormData();
 
-      await axios.post("/api/book", payload, { withCredentials: true });
-      navigate("/books");
+      formData.append("title", form.title);
+      formData.append("author", form.author);
+      formData.append("language", form.language);
+      formData.append("summary", form.summary);
+      formData.append("isbn", form.isbn);
+      formData.append("status", form.status);
+
+      if (form.pageNumbers)
+        formData.append("pageNumbers", Number(form.pageNumbers));
+
+      if (form.publishedYear)
+        formData.append("publishedYear", Number(form.publishedYear));
+
+      // Genres → array
+      const genres = form.genres
+        .split(",")
+        .map((g) => g.trim())
+        .filter(Boolean);
+
+      genres.forEach((g) => formData.append("genres", g));
+
+      // Image file
+      if (form.image) {
+        formData.append("image", form.image);
+      }
+
+      const res = await axios.post("/api/book/", formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log(res.data);
+
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to add book");
+      console.error(err);
+      setSubmitError(err?.response?.data?.error || "Failed to add book");
     } finally {
       setLoading(false);
     }
@@ -64,20 +156,14 @@ export default function BookForm() {
       <div className="w-4/5 mx-auto bg-white p-8 rounded-2xl shadow">
         <h2 className="text-3xl font-bold mb-6">Add a New Book</h2>
 
-        {/* Cover image upload area */}
-        <div className="mb-6 flex flex-col ">
+        {/* Cover Upload */}
+        <div className="mb-6">
           <label htmlFor="coverUpload" className="cursor-pointer">
-            {preview || form.coverImageUrl ? (
-              <img
-                src={preview || form.coverImageUrl}
-                alt="Cover Preview"
-                className="w-40 h-56 object-cover rounded shadow"
-              />
-            ) : (
-              <div className="w-40 h-56 flex items-center justify-center bg-gray-200 rounded text-gray-500">
-                Upload Cover
-              </div>
-            )}
+            <img
+              src={preview}
+              alt="Cover Preview"
+              className="w-40 h-56 object-cover rounded shadow"
+            />
           </label>
           <input
             id="coverUpload"
@@ -88,100 +174,94 @@ export default function BookForm() {
           />
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Smaller width fields */}
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1">Title *</label>
-            <input
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              className="border p-2 rounded"
-              required
-            />
-          </div>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-4 gap-6"
+        >
+          <Input
+            name="title"
+            placeholder="Title"
+            value={form.title}
+            onChange={handleChange}
+            onBlur={handleChange}
+            error={errors.title}
+          />
 
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1">Author *</label>
-            <input
-              name="author"
-              value={form.author}
-              onChange={handleChange}
-              className="border p-2 rounded"
-              required
-            />
-          </div>
+          <Input
+            name="author"
+            placeholder="Author"
+            value={form.author}
+            onChange={handleChange}
+            onBlur={handleChange}
+            error={errors.author}
+          />
 
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1">Language</label>
-            <input
-              name="language"
-              value={form.language}
-              onChange={handleChange}
-              className="border p-2 rounded"
-            />
-          </div>
+          <Input
+            name="language"
+            placeholder="Language"
+            value={form.language}
+            onChange={handleChange}
+            onBlur={handleChange}
+            error={errors.language}
+          />
 
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1">Pages</label>
-            <input
-              type="number"
-              name="pageNumbers"
-              value={form.pageNumbers}
-              onChange={handleChange}
-              className="border p-2 rounded"
-              min="1"
-            />
-          </div>
+          <Input
+            name="pageNumbers"
+            type="number"
+            placeholder="Pages"
+            value={form.pageNumbers}
+            onChange={handleChange}
+            onBlur={handleChange}
+            error={errors.pageNumbers}
+          />
 
-          {/* Full-width fields */}
-          <div className="flex flex-col md:col-span-2">
-            <label className="font-medium mb-1">Genres (comma separated) *</label>
-            <input
-              name="genres"
-              value={form.genres}
-              onChange={handleChange}
-              className="border p-2 rounded"
-              placeholder="e.g. Fantasy, Adventure"
-            />
-          </div>
+          <Input
+            name="genres"
+            className="md:col-span-2"
+            placeholder="Genres (comma separated)"
+            value={form.genres}
+            onChange={handleChange}
+            onBlur={handleChange}
+            error={errors.genres}
+          />
 
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1">ISBN</label>
-            <input
-              name="isbn"
-              value={form.isbn}
-              onChange={handleChange}
-              className="border p-2 rounded"
-              placeholder="10 or 13 digits"
-            />
-          </div>
+          <Input
+            name="isbn"
+            placeholder="ISBN"
+            value={form.isbn}
+            onChange={handleChange}
+            onBlur={handleChange}
+            error={errors.isbn}
+          />
 
-          <div className="flex flex-col md:col-span-1">
-            <label className="font-medium mb-1">Published Year</label>
-            <input
-              type="number"
-              name="publishedYear"
-              value={form.publishedYear}
-              onChange={handleChange}
-              className="border p-2 rounded"
-              min="1900"
-            />
-          </div>
+          <Input
+            name="publishedYear"
+            type="number"
+            placeholder="Published Year"
+            value={form.publishedYear}
+            onChange={handleChange}
+            onBlur={handleChange}
+            error={errors.publishedYear}
+          />
 
-          {/* Summary moved to the end */}
-          <div className="flex flex-col md:col-span-4">
+          {/* Summary */}
+          <div className="md:col-span-4">
             <label className="font-medium mb-1">Summary</label>
             <textarea
               name="summary"
               value={form.summary}
               onChange={handleChange}
-              className="border p-2 rounded h-28"
+              className={`w-full border rounded p-2 h-28 ${
+                errors.summary ? "border-red-500" : "border-gray-400"
+              }`}
             />
+            {errors.summary && (
+              <p className="text-red-500 text-sm mt-1">{errors.summary}</p>
+            )}
           </div>
 
-          {error && (
-            <p className="text-red-600 md:col-span-4">{error}</p>
+          {submitError && (
+            <p className="text-red-600 md:col-span-4">{submitError}</p>
           )}
 
           <button
