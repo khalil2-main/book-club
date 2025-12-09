@@ -20,7 +20,7 @@ const bookSchema = new mongoose.Schema({
 
   pageNumbers: { 
     type: Number, 
-    min: [5, "Page number must be at least 1"],
+    min: [5, "Page number must be at least 5"],
     max: [3000, "Page number cannot exceed 3,000"]
   },
 
@@ -65,7 +65,8 @@ const bookSchema = new mongoose.Schema({
   rating: { 
     type: Number, 
     min: [0, "Rating cannot be lower than 0"],
-    max: [5, "Rating cannot be higher than 5"]
+    max: [5, "Rating cannot be higher than 5"],
+    default:0
   },
 
   status: {
