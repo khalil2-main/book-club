@@ -7,6 +7,7 @@ const validate= require('../middlewares/validate')
 const router=Router();
 const fs = require('fs');
 const path = require('path');
+const { requireAuth } = require('../middlewares/auth');
 const upload=creatUploader('books');
 
 // show the top 15 puppolair book
@@ -44,7 +45,7 @@ router.get('/', async (req, res) => {
 
 //Create a book
 
-router.post('/',upload.single('image'),bookCreationValidator,validate,async (req, res) => {
+router.post('/',upload.single('image'),requireAuth,bookCreationValidator,validate,async (req, res) => {
 
     let data = matchedData(req);
 
@@ -68,7 +69,7 @@ router.post('/',upload.single('image'),bookCreationValidator,validate,async (req
 });
 
 
-router.patch('/:id',isParamValidator, bookUpdateValidator, async (req, res) => {
+router.patch('/:id',isParamValidator,requireAuth, bookUpdateValidator, async (req, res) => {
   const {id}= req.params
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
