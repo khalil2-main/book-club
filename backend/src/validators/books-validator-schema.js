@@ -1,5 +1,5 @@
 // validators/books-validator.js
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 
 const bookCreationValidator = [
   body('title')
@@ -80,7 +80,7 @@ const bookUpdateValidator = [
 
   body('publishedYear')
     .optional()
-    .isInt({ min: 0, max: new Date().getFullYear() }),
+    .isInt({ min: 1500, max: new Date().getFullYear() }),
 
   
 ];
@@ -89,5 +89,10 @@ const isParamValidator = [
   param('id').isMongoId().withMessage('Invalid ID format')
 ];
 
-module.exports = { bookCreationValidator, bookUpdateValidator,isParamValidator
-};
+const pageValidator =[
+  query('page').isInt({min:1}).withMessage('enter a valide page number')
+]
+
+module.exports = { bookCreationValidator, bookUpdateValidator,isParamValidator, pageValidator};
+
+
