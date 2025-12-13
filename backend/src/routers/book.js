@@ -1,7 +1,7 @@
 const { Router}= require('express')
 const Book = require('./../models/bookModel')
 const {validationResult, matchedData,}=require('express-validator');
-const {bookCreationValidator,bookUpdateValidator, isParamValidator} =require ('../validators/books-validator-schema')
+const {bookCreationValidator,bookUpdateValidator, isParamValidator, pageValidator} =require ('../validators/books-validator-schema')
 const creatUploader= require('../middlewares/upload')
 const validate= require('../middlewares/validate')
 const router=Router();
@@ -24,7 +24,7 @@ router.get('/top', async(req, res) => {
 });
 
 // get all book 20 per page
-router.get('/', async (req, res) => {
+router.get('/',pageValidator, validate, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
@@ -64,7 +64,7 @@ router.post('/',upload.single('image'),requireAuth,bookCreationValidator,validat
 
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "BAD REQUEST" });
+      res.status(500).json({ error: "BAD REQUEST", details: err.message});
     }
 });
 
