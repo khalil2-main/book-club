@@ -6,6 +6,7 @@ const AddBook = () => {
 
   return (
     <>
+      <title>Add New Book</title>
       <Header />
       <BookForm/>
     </>
