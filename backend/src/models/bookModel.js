@@ -54,7 +54,7 @@ const bookSchema = new mongoose.Schema({
 
   publishedYear: { 
     type: Number,
-    min: [1900, "Published year cannot be negative"],
+    min: [1500, "Published year cannot be negative"],
     max: [new Date().getFullYear(), "Published year cannot be in the future"]
   },
 
