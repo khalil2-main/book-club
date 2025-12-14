@@ -10,6 +10,9 @@ const path = require('path');
 const { requireAuth } = require('../middlewares/auth');
 const upload=creatUploader('books');
 
+//number of books per page
+const limit = 20;
+
 // show the top 15 puppolair book
 router.get('/top', async(req, res) => {
   try{
@@ -27,7 +30,7 @@ router.get('/top', async(req, res) => {
 router.get('/',pageValidator, validate, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 20;
+
     const skip = (page - 1) * limit;
 
     const books = await Book.find()
@@ -41,6 +44,19 @@ router.get('/',pageValidator, validate, async (req, res) => {
     return res.status(500).send('BAD REQUEST');
   }
 });
+
+// Get number of pages
+router.get('/npage', async(req, res) => {
+  try
+{
+    const totalBooks = await Book.countDocuments();
+    
+    const totalPages = Math.ceil(totalBooks / limit);
+    res.status(200).send({ totalPages });
+} catch (err) {
+    console.log(err);
+    return res.status(500).send({message:'BAD REQUEST' , error: err.message});
+}}  );
 
 
 //Create a book
