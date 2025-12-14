@@ -1,6 +1,6 @@
-import  { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import Header from "../components/Header";
 import { useParams, useNavigate } from "react-router-dom";
 
 const BookDetail = () => {
@@ -97,7 +97,7 @@ const BookDetail = () => {
     }
   };
 
-  if (loading) return (<><Headers/><div className="p-6 text-center">Chargement...</div></>);
+  if (loading) return (<><Header/><div className="p-6 text-center">Chargement...</div></>);
   if (error) return (<><Header/><div className="p-6 text-center text-red-600">{error}</div></>);
   if (!book) return (<><Header/><div className="p-6 text-center">Aucun livre.</div></>);
 

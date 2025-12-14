@@ -81,7 +81,6 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
  // get all users
 
 
-
 //filtering users
 router.get("/", adminAuth, async (req, res) => {
   try {
