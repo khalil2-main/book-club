@@ -3,7 +3,7 @@
 import axios from "axios";
 import BookCarousel from "../components/BookCarousel";
 import { useEffect, useState } from "react";
-import Header from "../components/header";
+import Header from "../components/Header";
 
 function HomePage() {
   

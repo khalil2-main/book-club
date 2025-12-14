@@ -90,6 +90,20 @@ router.post('/',upload.single('image'),requireAuth,normalizeGenres ,bookCreation
     }
 });
 
+router.get('/:id',isParamValidator,validate ,async (req, res) => {
+  const {id}= req.params    
+  try {
+    const book = await Book.findById(id);
+    if (!book) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+    res.status(200).json({ book });
+  }
+    catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+});
 
 router.patch('/:id',isParamValidator,requireAuth, bookUpdateValidator, async (req, res) => {
   const {id}= req.params

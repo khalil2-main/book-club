@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const BookCard = ({ book }) => (
   <Link
-    key={book._id}
+    to={`/books/${book._id}`} // Navigate to BookDetail page
     className="w-48 flex-shrink-0 bg-white rounded-lg shadow p-3"
   >
     <div className="w-full h-56 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
