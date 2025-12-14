@@ -79,49 +79,43 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
 
 //-- Admin user mangemnt api --//
  // get all users
-router.get('/',adminAuth, async (req, res) => {
-  try {
-    const users = await User.find().sort({prenom:1,nom:1}); 
-    res.status(200).json(users);
-  } catch (err) {
-    console.error(' Error fetching users:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+
 
 
 //filtering users
-router.get("/search",adminAuth , async (req, res) => {
+router.get("/", adminAuth, async (req, res) => {
   try {
     const { firstname, lastname, email, role } = req.query;
-
     const filter = {};
 
     if (firstname) {
-      filter.firstname = { $regex: '^' + firstname, $options: 'i' };
+      filter.firstname = { $regex: "^" + firstname, $options: "i" };
     }
 
     if (lastname) {
-      filter.lastname = { $regex: '^' + lastname, $options: 'i' };
+      filter.lastname = { $regex: "^" + lastname, $options: "i" };
     }
 
     if (email) {
-      filter.email = { $regex: '^' + email, $options: 'i' };
+      filter.email = { $regex: "^" + email, $options: "i" };
     }
 
     if (role) {
       filter.admin = role === "admin";
     }
 
-    const users = await User.find(filter).sort({ firstname: 1, lastname: 1 });
+    const users = await User.find(filter).sort({
+      firstname: 1,
+      lastname: 1,
+    });
 
     res.status(200).json(users);
-
   } catch (err) {
-    console.error("Search error:", err);
+    console.error("Error fetching users:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 
 
