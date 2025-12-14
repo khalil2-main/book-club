@@ -79,7 +79,7 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
 
 //-- Admin user mangemnt api --//
  // get all users
-router.get('',adminAuth, async (req, res) => {
+router.get('/',adminAuth, async (req, res) => {
   try {
     const users = await User.find().sort({prenom:1,nom:1}); 
     res.status(200).json(users);
