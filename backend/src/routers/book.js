@@ -1,7 +1,7 @@
 const { Router}= require('express')
 const Book = require('./../models/bookModel')
 const {validationResult, matchedData,}=require('express-validator');
-const {bookCreationValidator,bookUpdateValidator, isParamValidator, pageValidator} =require ('../validators/books-validator-schema')
+const {bookCreationValidator,bookUpdateValidator, isParamValidator, pageValidator, normalizeGenres} =require ('../validators/books-validator-schema')
 const creatUploader= require('../middlewares/upload')
 const validate= require('../middlewares/validate')
 const router=Router();
@@ -61,7 +61,7 @@ router.get('/npage', async(req, res) => {
 
 //Create a book
 
-router.post('/',upload.single('image'),requireAuth,bookCreationValidator,validate,async (req, res) => {
+router.post('/',upload.single('image'),requireAuth,normalizeGenres ,bookCreationValidator,validate,async (req, res) => {
 
     let data = matchedData(req);
 
@@ -79,8 +79,14 @@ router.post('/',upload.single('image'),requireAuth,bookCreationValidator,validat
       });
 
     } catch (err) {
+        if (err.code === 11000) {
+        return res.status(409).json({
+          message: "Validation failed",
+          errors: "A book with this ISBN already exists."
+        });
+      }
       console.error(err);
-      res.status(500).json({ error: "BAD REQUEST", details: err.message});
+      res.status(500).json({ error: "Server error", details: err.message});
     }
 });
 
