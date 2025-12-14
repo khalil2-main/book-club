@@ -10,7 +10,7 @@ export default function BookForm() {
   "Biography", "Autobiography", "Memoir", "Self-Help", "Personal Development", "Philosophy", "Psychology", "Sociology", "Anthropology", "History", "Military History", "World History", "Politics", "Economics", "Business", "Finance", "Entrepreneurship", "Marketing", "Leadership", "Education", "Parenting", "Religion", "Spirituality", "True Crime", "Travel", "Cookbooks", "Food & Nutrition", "Health & Wellness", "Fitness", "Art", "Photography", "Music", "Film Studies", "Writing", "Linguistics", "Poetry", "Essays", "Journalism", "Crafts & DIY",
 
   "Science", "Biology", "Ecology", "Evolution", "Chemistry", "Physics", "Astronomy", "Earth Science", "Geology", "Neuroscience", "Mathematics", "Statistics", "Engineering", "Computer Science", "Information Technology", "Software Engineering", "Programming", "Web Development", "Backend Development", "Frontend Development", "Mobile Development", "Artificial Intelligence", "Machine Learning", "Data Science", "Cybersecurity", "Cloud Computing", "DevOps", "Networking", "Databases", "Algorithms", "Operating Systems", "Law", "Medicine", "Nursing", "Public Health", "Architecture", "Design"
-];
+].sort();
 
   const [form, setForm] = useState({
     title: "",
@@ -154,7 +154,7 @@ export default function BookForm() {
 
     } catch (err) {
       console.error(err);
-      setSubmitError(err?.response?.data?.error || "Failed to add book");
+      setSubmitError(err?.response?.data?.errors || "Failed to add book");
     } finally {
       setLoading(false);
     }
