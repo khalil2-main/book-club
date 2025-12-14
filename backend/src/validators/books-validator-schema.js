@@ -93,6 +93,13 @@ const pageValidator =[
   query('page').isInt({min:1}).withMessage('enter a valide page number')
 ]
 
-module.exports = { bookCreationValidator, bookUpdateValidator,isParamValidator, pageValidator};
+const normalizeGenres = (req, res, next) => {
+  if (req.body.genres && !Array.isArray(req.body.genres)) {
+    req.body.genres = [req.body.genres];
+  }
+  next();
+};
+
+module.exports = { bookCreationValidator, bookUpdateValidator,isParamValidator, pageValidator ,normalizeGenres};
 
 
