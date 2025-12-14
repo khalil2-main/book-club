@@ -13,6 +13,7 @@ import AdminRoute from "./components/AdminRoute";
 import NotFound from "./pages/Notfound";
 import { Toaster } from "react-hot-toast";
 import BooksPage from "./pages/BooksPage";
+import BookInfo from "./pages/BookInfo"; // Import BookDetail
 
 const App = () => {
   return (
@@ -47,7 +48,8 @@ const App = () => {
         <Route path="dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}></Route>
         <Route path="admin" element={<AdminRoute><AdminUsers/></AdminRoute>}></Route>
           <Route path="recentbooks" element={<ProtectedRoute><RecentBooks/></ProtectedRoute>}></Route>
-        <Route path='books' element={<BooksPage/>}></Route>
+        <Route path='books' element={<ProtectedRoute><BooksPage/></ProtectedRoute>}></Route>
+        <Route path='books/:id' element={<ProtectedRoute><BookInfo/></ProtectedRoute>}></Route>
        <Route path="books/add" element={<ProtectedRoute> <AddBook/> </ProtectedRoute>}></Route>
 
         <Route path="*" element={<NotFound/>} ></Route>
