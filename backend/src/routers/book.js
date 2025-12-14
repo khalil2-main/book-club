@@ -7,7 +7,7 @@ const validate= require('../middlewares/validate')
 const router=Router();
 const fs = require('fs');
 const path = require('path');
-const { requireAuth } = require('../middlewares/auth');
+const { requireAuth, adminAuth } = require('../middlewares/auth');
 const upload=creatUploader('books');
 
 //number of books per page
@@ -112,6 +112,31 @@ router.patch('/:id',isParamValidator,requireAuth, bookUpdateValidator, async (re
   }
 });
 
+router.delete('/:id',isParamValidator,requireAuth , adminAuth , async (req, res) => {
+  const {id}= req.params
+  try {
+    const book = await Book.findByIdAndDelete(id);
+    if (!book) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+    // delete cover image file if exists
+    if (book.coverImageUrl) {
+      const imagePath = path.join(__dirname, '../..', book.coverImageUrl);
+     fs.access(imagePath, fs.constants.F_OK, (err) => {
+      if (!err) {
+        fs.unlink(imagePath, (err) => {
+          if (err) console.error('Failed to delete image:', err);
+        });
+      }
+  });
+
+    }
+    res.status(200).json({ message: "Book deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+});
 
 
 module.exports=router
