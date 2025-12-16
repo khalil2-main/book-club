@@ -105,26 +105,51 @@ router.get('/:id',isParamValidator,validate ,async (req, res) => {
   }
 });
 
-router.patch('/:id',isParamValidator,requireAuth, bookUpdateValidator, async (req, res) => {
-  const {id}= req.params
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ error: "Validation failed",details: errors.array()
-    });
+router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,normalizeGenres,bookUpdateValidator,validate,async (req, res) => {
+    const { id } = req.params;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const data = matchedData(req);
+    console.log({data})
+
+    try {
+      const book = await Book.findById(id);
+      if (!book) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+
+      // Handle cover image update
+      if (req.file) {
+        // Delete old image if it exists
+        if (book.coverImageUrl) {
+          const oldImagePath = path.join(__dirname, '../..', book.coverImageUrl);
+          fs.access(oldImagePath, fs.constants.F_OK, (err) => {
+            if (!err) {
+              fs.unlink(oldImagePath, (err) => {
+                if (err) console.error('Failed to delete old image:', err);
+              });
+            }
+          });
+        }
+        data.coverImageUrl = `/uploads/books/${req.file.filename}`;
+      }
+
+      const updatedBook = await Book.findByIdAndUpdate(id, data, {
+        new: true,
+        runValidators: true
+      });
+      
+      res.status(200).json({ message: "Book updated successfully", book: updatedBook });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "BAD REQUEST" , details: err});
+    }
   }
-  const data = matchedData(req);
-  try {
-    
-    const book = await findByIdAndUpdate(id,data,{
-      new:true,
-      runValidators:true
-    })
-    
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "BAD REQEST" });
-  }
-});
+);
 
 router.delete('/:id',isParamValidator,requireAuth , adminAuth , async (req, res) => {
   const {id}= req.params
