@@ -7,7 +7,7 @@ import noImage from "../assets/images/default_book_cover.jpg";
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 py-2">
-    <div className="w-full sm:w-40 text-sm text-violet-600 font-medium">
+    <div className="w-full sm:w-40 text-sm text-indigo-600 font-medium">
       {label}
     </div>
     <div className="text-gray-700 text-sm">{children}</div>
@@ -160,7 +160,7 @@ export default function BookInfo() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-full bg-white shadow text-violet-600 hover:shadow-md"
+              className="p-2 rounded-full bg-white shadow text-indigo-600 hover:shadow-md"
             >
               ←
             </button>
@@ -173,7 +173,7 @@ export default function BookInfo() {
           <div className="flex items-center space-x-3">
             <Link
               to={`/books/${id}/edit`}
-              className="px-4 py-2 bg-white border text-violet-600 rounded shadow-sm"
+              className="px-4 py-2 bg-white border text-indigo-600 rounded shadow-sm"
             >
               Edit
             </Link>
@@ -234,7 +234,7 @@ export default function BookInfo() {
                     {genres.map((g, i) => (
                       <span
                         key={i}
-                        className="text-xs bg-violet-50 text-violet-700 px-3 py-1 rounded-full"
+                        className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full"
                       >
                         {g}
                       </span>
@@ -253,7 +253,7 @@ export default function BookInfo() {
           <div className="mt-6">
             <Link
               to="/"
-              className="px-4 py-2 text-sm bg-white border rounded shadow-sm text-violet-600"
+              className="px-4 py-2 text-sm bg-white border rounded shadow-sm text-indigo-600"
             >
               ← Back to dashboard
             </Link>
