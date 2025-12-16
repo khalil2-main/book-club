@@ -15,7 +15,7 @@ const LogInForm = () => {
       await axios.post("/api/login", form);
       console.log("Sent:", form);
       await checkAuth()
-      navigate("/recentbooks");
+      navigate("/");
     } catch (err) {
       if(err.response.data.errors) {
         console.log(err.response.data.errors)

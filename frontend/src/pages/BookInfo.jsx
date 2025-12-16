@@ -1,8 +1,10 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import noImage from "../assets/images/default_book_cover.jpg";
 
-// Component for displaying a row of info
+/* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 py-2">
     <div className="w-full sm:w-40 text-sm text-indigo-600 font-medium">
@@ -12,26 +14,27 @@ const InfoRow = ({ label, children }) => (
   </div>
 );
 
-// Placeholder book in case API fails
+/* ---------- Placeholder book (fallback) ---------- */
 const PLACEHOLDER_BOOK = {
-  title: "Livre introuvable",
-  author: "Auteur inconnu",
+  title: "Book not found",
+  author: "Unknown author",
   language: "—",
   pageNumbers: "—",
-  genres: ["Inconnu"],
+  genres: ["Unknown"],
   summary:
-    "Ce livre est introuvable. Il a peut-être été supprimé ou le lien est incorrect.",
+    "This book could not be found. It may have been deleted or the link is incorrect.",
   isbn: "—",
   publishedYear: "—",
-  coverImageUrl: "https://via.placeholder.com/300x450?text=Aucune+Couverture",
+  coverImageUrl: noImage,
   rating: 0,
   status: "want-to-read",
   dateAdded: null,
 };
 
-// Star rating component
+/* ---------- Star rating ---------- */
 const Stars = ({ value = 0 }) => {
   const full = Math.floor(value);
+
   return (
     <div className="flex items-center space-x-1">
       {Array.from({ length: 5 }).map((_, i) => (
@@ -49,6 +52,7 @@ const Stars = ({ value = 0 }) => {
   );
 };
 
+/* ---------- Main component ---------- */
 export default function BookInfo() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -57,6 +61,7 @@ export default function BookInfo() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
+  /* ---------- Fetch book ---------- */
   useEffect(() => {
     const ac = new AbortController();
 
@@ -73,36 +78,61 @@ export default function BookInfo() {
     };
 
     getBook();
-
     return () => ac.abort();
   }, [id]);
 
+  /* ---------- Delete book ---------- */
   const handleDelete = async () => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce livre ?")) return;
-
-    try {
-      setDeleting(true);
-      const res = await fetch(`/api/book/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      navigate("/");
-    } catch {
-      alert("Échec de la suppression du livre.");
-    } finally {
-      setDeleting(false);
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+          <span className="text-sm text-gray-700 mb-2 sm:mb-0">
+            Are you sure you want to delete this book?
+          </span>
+          <div className="flex space-x-2">
+            <button
+              className="px-3 py-1 bg-red-600 text-white rounded text-sm"
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  setDeleting(true);
+                  await axios.delete(`/api/book/${id}`);
+                  toast.success("Book deleted successfully!");
+                  navigate("/books");
+                } catch {
+                  toast.error("Failed to delete the book.");
+                } finally {
+                  setDeleting(false);
+                }
+              }}
+            >
+              Yes
+            </button>
+            <button
+              className="px-3 py-1 bg-gray-300 text-gray-800 rounded text-sm"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity }
+    );
   };
 
+  /* ---------- Loading state ---------- */
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-indigo-600 font-medium animate-pulse">
-          Chargement des détails du livre...
+        <div className="text-violet-600 font-medium animate-pulse">
+          Loading book details...
         </div>
       </div>
     );
   }
 
-  // Destructure book object safely
+  /* ---------- Destructure safely ---------- */
   const {
     title,
     author,
@@ -119,7 +149,7 @@ export default function BookInfo() {
   } = book || PLACEHOLDER_BOOK;
 
   const formattedDate = dateAdded
-    ? new Date(dateAdded).toLocaleDateString("fr-FR")
+    ? new Date(dateAdded).toLocaleDateString("en-US")
     : "—";
 
   return (
@@ -135,8 +165,8 @@ export default function BookInfo() {
               ←
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-indigo-600">{title}</h1>
-              <p className="text-sm text-gray-500">par {author}</p>
+              <h1 className="text-2xl font-bold text-violet-600">{title}</h1>
+              <p className="text-sm text-gray-500">by {author}</p>
             </div>
           </div>
 
@@ -145,14 +175,14 @@ export default function BookInfo() {
               to={`/books/${id}/edit`}
               className="px-4 py-2 bg-white border text-indigo-600 rounded shadow-sm"
             >
-              Modifier
+              Edit
             </Link>
             <button
               onClick={handleDelete}
               disabled={deleting}
               className="px-4 py-2 bg-red-50 text-red-600 border rounded shadow-sm disabled:opacity-50"
             >
-              {deleting ? "Suppression..." : "Supprimer"}
+              {deleting ? "Deleting..." : "Delete"}
             </button>
           </div>
         </div>
@@ -171,18 +201,18 @@ export default function BookInfo() {
               </div>
 
               <div className="mt-4">
-                <div className="text-xs text-gray-500">Statut</div>
+                <div className="text-xs text-gray-500">Status</div>
                 <div className="mt-1 inline-block px-3 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-700">
                   {status === "reading"
-                    ? "En cours"
+                    ? "Reading"
                     : status === "completed"
-                    ? "Terminé"
-                    : "À lire"}
+                    ? "Completed"
+                    : "Want to Read"}
                 </div>
               </div>
 
               <div className="mt-4">
-                <div className="text-xs text-gray-500">Ajouté le</div>
+                <div className="text-xs text-gray-500">Added on</div>
                 <div className="text-sm text-gray-700">{formattedDate}</div>
               </div>
             </div>
@@ -192,12 +222,12 @@ export default function BookInfo() {
               <Stars value={rating ?? 0} />
 
               <div className="border-t border-b py-4 my-4">
-                <InfoRow label="Auteur">{author}</InfoRow>
-                <InfoRow label="Langue">{language}</InfoRow>
+                <InfoRow label="Author">{author}</InfoRow>
+                <InfoRow label="Language">{language}</InfoRow>
                 <InfoRow label="Pages">
                   {pageNumbers ? `${pageNumbers} pages` : "—"}
                 </InfoRow>
-                <InfoRow label="Année">{publishedYear}</InfoRow>
+                <InfoRow label="Year">{publishedYear}</InfoRow>
                 <InfoRow label="ISBN">{isbn}</InfoRow>
                 <InfoRow label="Genres">
                   <div className="flex flex-wrap gap-2">
@@ -213,11 +243,9 @@ export default function BookInfo() {
                 </InfoRow>
               </div>
 
-              <h3 className="text-sm text-indigo-600 font-medium mb-2">
-                Résumé
-              </h3>
+              <h3 className="text-sm text-violet-600 font-medium mb-2">Summary</h3>
               <p className="text-sm text-gray-700 leading-relaxed">
-                {summary || "Aucun résumé disponible."}
+                {summary || "No summary available."}
               </p>
             </div>
           </div>
@@ -227,7 +255,7 @@ export default function BookInfo() {
               to="/"
               className="px-4 py-2 text-sm bg-white border rounded shadow-sm text-indigo-600"
             >
-              ← Retour au tableau de bord
+              ← Back to dashboard
             </Link>
           </div>
         </div>
