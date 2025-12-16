@@ -1,6 +1,8 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import noImage from "../assets/images/default_book_cover.jpg";
 
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
@@ -23,7 +25,7 @@ const PLACEHOLDER_BOOK = {
     "This book could not be found. It may have been deleted or the link is incorrect.",
   isbn: "—",
   publishedYear: "—",
-  coverImageUrl: "https://via.placeholder.com/300x450?text=No+Cover",
+  coverImageUrl: noImage,
   rating: 0,
   status: "want-to-read",
   dateAdded: null,
@@ -38,9 +40,7 @@ const Stars = ({ value = 0 }) => {
       {Array.from({ length: 5 }).map((_, i) => (
         <span
           key={i}
-          className={`text-sm ${
-            i < full ? "text-yellow-500" : "text-gray-300"
-          }`}
+          className={`text-sm ${i < full ? "text-yellow-500" : "text-gray-300"}`}
         >
           ★
         </span>
@@ -67,10 +67,7 @@ export default function BookInfo() {
 
     const getBook = async () => {
       try {
-        const res = await axios.get(`/api/book/${id}`, {
-          signal: ac.signal,
-        });
-
+        const res = await axios.get(`/api/book/${id}`, { signal: ac.signal });
         setBook(res.data.book || PLACEHOLDER_BOOK);
       } catch (err) {
         if (axios.isCancel(err)) return;
@@ -86,18 +83,42 @@ export default function BookInfo() {
 
   /* ---------- Delete book ---------- */
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this book?")) return;
-
-    try {
-      setDeleting(true);
-      const res = await fetch(`/api/book/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      navigate("/");
-    } catch {
-      alert("Failed to delete the book.");
-    } finally {
-      setDeleting(false);
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+          <span className="text-sm text-gray-700 mb-2 sm:mb-0">
+            Are you sure you want to delete this book?
+          </span>
+          <div className="flex space-x-2">
+            <button
+              className="px-3 py-1 bg-red-600 text-white rounded text-sm"
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  setDeleting(true);
+                  await axios.delete(`/api/book/${id}`);
+                  toast.success("Book deleted successfully!");
+                  navigate("/books");
+                } catch {
+                  toast.error("Failed to delete the book.");
+                } finally {
+                  setDeleting(false);
+                }
+              }}
+            >
+              Yes
+            </button>
+            <button
+              className="px-3 py-1 bg-gray-300 text-gray-800 rounded text-sm"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity }
+    );
   };
 
   /* ---------- Loading state ---------- */
@@ -222,9 +243,7 @@ export default function BookInfo() {
                 </InfoRow>
               </div>
 
-              <h3 className="text-sm text-violet-600 font-medium mb-2">
-                Summary
-              </h3>
+              <h3 className="text-sm text-violet-600 font-medium mb-2">Summary</h3>
               <p className="text-sm text-gray-700 leading-relaxed">
                 {summary || "No summary available."}
               </p>
