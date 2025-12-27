@@ -58,7 +58,7 @@ const bookSchema = new mongoose.Schema({
     max: [new Date().getFullYear(), "Published year cannot be in the future"]
   },
 
-  coverImageUrl: { type: String, required: true},
+  coverImageUrl: { type: String},
   
 
 
@@ -76,6 +76,12 @@ const bookSchema = new mongoose.Schema({
       message: "Status must be 'reading', 'completed', or 'want-to-read'"
     }
   },
+  createdBy:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    require:true
+  },
+
 
   dateAdded: { 
     type: Date, 

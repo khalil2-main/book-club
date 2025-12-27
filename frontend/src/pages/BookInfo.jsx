@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import noImage from "../assets/images/default_book_cover.jpg";
 
+
+
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 py-2">
@@ -31,6 +33,7 @@ const PLACEHOLDER_BOOK = {
   dateAdded: null,
 };
 
+
 /* ---------- Star rating ---------- */
 const Stars = ({ value = 0 }) => {
   const full = Math.floor(value);
@@ -40,7 +43,7 @@ const Stars = ({ value = 0 }) => {
       {Array.from({ length: 5 }).map((_, i) => (
         <span
           key={i}
-          className={`text-sm ${i < full ? "text-yellow-500" : "text-gray-300"}`}
+          className={`text-lg ${i < full ? "text-yellow-500" : "text-gray-300"}`}
         >
           ★
         </span>
@@ -54,6 +57,7 @@ const Stars = ({ value = 0 }) => {
 
 /* ---------- Main component ---------- */
 export default function BookInfo() {
+  const [preview, setPreview]= useState(noImage)
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -69,6 +73,7 @@ export default function BookInfo() {
       try {
         const res = await axios.get(`/api/book/${id}`, { signal: ac.signal });
         setBook(res.data.book || PLACEHOLDER_BOOK);
+        if(res.data.book.coverImageUrl) setPreview(res.data.book.coverImageUrl)
       } catch (err) {
         if (axios.isCancel(err)) return;
         setBook(PLACEHOLDER_BOOK);
@@ -142,7 +147,7 @@ export default function BookInfo() {
     summary,
     isbn,
     publishedYear,
-    coverImageUrl,
+    
     rating,
     status,
     dateAdded,
@@ -194,7 +199,7 @@ export default function BookInfo() {
             <div className="flex flex-col items-center md:items-start">
               <div className="w-56 h-80 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
                 <img
-                  src={coverImageUrl}
+                  src={preview}
                   alt={title}
                   className="object-contain max-h-full max-w-full"
                 />

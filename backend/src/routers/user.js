@@ -78,7 +78,7 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
 
 
 //-- Admin user mangemnt api --//
- // get all users
+
 
 
 
@@ -123,7 +123,10 @@ router.get("/", adminAuth, async (req, res) => {
 router.get('/:id',async (req, res)=>{
     try{
       const {id }= req.params;
-      const user = await User.findById(id)
+      const user = await User.findByIdAndUpdate(id,
+        {$inc:{visitCount:1}},
+        {new:true}
+      )
       
       if(!user) return res.status(400).send({error: 'User not found' });
       return res.status(200).send({user})

@@ -64,12 +64,13 @@ router.get('/npage', async(req, res) => {
 router.post('/',upload.single('image'),requireAuth,normalizeGenres ,bookCreationValidator,validate,async (req, res) => {
 
     let data = matchedData(req);
+    const id = req.userId
+    data.createdBy= id
 
     try {
       if (req.file) {
         data.coverImageUrl = `/uploads/books/${req.file.filename}`;
       }
-
       const book = new Book(data);
       const savedBook = await book.save();
 
