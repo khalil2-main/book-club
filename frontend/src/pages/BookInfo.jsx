@@ -3,6 +3,7 @@ import  { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import noImage from "../assets/images/default_book_cover.jpg";
+import { useAuth } from "../context/AuthContext";
 
 
 
@@ -64,8 +65,14 @@ export default function BookInfo() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-
+  const {admin}= useAuth()
+  const [editor, setEditor]= useState(false)
   /* ---------- Fetch book ---------- */
+  const checkEditor=async(id)=>{
+    const res= await axios.get(`/api/isEditor/${id}`);
+    console.log(res.data)
+    setEditor(res.data.editor)
+  }
   useEffect(() => {
     const ac = new AbortController();
 
@@ -73,10 +80,13 @@ export default function BookInfo() {
       try {
         const res = await axios.get(`/api/book/${id}`, { signal: ac.signal });
         setBook(res.data.book || PLACEHOLDER_BOOK);
+        await checkEditor(res.data.book.createdBy)
         if(res.data.book.coverImageUrl) setPreview(res.data.book.coverImageUrl)
+        
       } catch (err) {
         if (axios.isCancel(err)) return;
         setBook(PLACEHOLDER_BOOK);
+       
       } finally {
         setLoading(false);
       }
@@ -175,7 +185,8 @@ export default function BookInfo() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          {(admin || editor)&&
+          (<div className="flex items-center space-x-3">
             <Link
               to={`/books/${id}/edit`}
               className="px-4 py-2 bg-white border text-indigo-600 rounded shadow-sm"
@@ -189,7 +200,7 @@ export default function BookInfo() {
             >
               {deleting ? "Deleting..." : "Delete"}
             </button>
-          </div>
+          </div>)}
         </div>
 
         {/* Card */}

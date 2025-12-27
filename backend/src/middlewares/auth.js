@@ -1,5 +1,6 @@
 const jwt= require('jsonwebtoken')
 const User= require('../models/userModel')
+const Book= require('../models/bookModel')
 
 const requireAuth= (req,res,next)=>{
   const token=req.cookies.jwt;
@@ -42,5 +43,31 @@ const adminAuth= async(req,res, next)=>{
     }
   }
 }
+const adminOrEditorAuth = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const { id } = req.params;
 
-module.exports={requireAuth, adminAuth}
+    if (!userId) return res.status(401).send('Your token is not valid');
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send('User not found');
+
+    // Admin check
+    if (user.admin) return next();
+
+    const book = await Book.findById(id);
+    if (!book) return res.status(404).send('Book not found');
+
+    // Editor check
+    if (book.createdBy.toString() === userId.toString()) return next();
+
+    return res.status(401).send("You need admin or editor privileges");
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ message: 'Server error' });
+  }
+};
+
+module.exports={requireAuth, adminAuth, adminOrEditorAuth}

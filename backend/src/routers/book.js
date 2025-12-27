@@ -7,7 +7,7 @@ const validate= require('../middlewares/validate')
 const router=Router();
 const fs = require('fs');
 const path = require('path');
-const { requireAuth, adminAuth } = require('../middlewares/auth');
+const { requireAuth , adminOrEditorAuth} = require('../middlewares/auth');
 const upload=creatUploader('books');
 
 //number of books per page
@@ -106,7 +106,7 @@ router.get('/:id',isParamValidator,validate ,async (req, res) => {
   }
 });
 
-router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,normalizeGenres,bookUpdateValidator,validate,async (req, res) => {
+router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,adminOrEditorAuth,normalizeGenres,bookUpdateValidator,validate,async (req, res) => {
     const { id } = req.params;
 
     const errors = validationResult(req);
@@ -152,7 +152,7 @@ router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,normaliz
   }
 );
 
-router.delete('/:id',isParamValidator,requireAuth , adminAuth , async (req, res) => {
+router.delete('/:id',isParamValidator,requireAuth , adminOrEditorAuth , async (req, res) => {
   const {id}= req.params
   try {
     const book = await Book.findByIdAndDelete(id);

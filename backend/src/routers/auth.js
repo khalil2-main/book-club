@@ -103,6 +103,19 @@ router.get('/isAdmin',requireAuth,async(req,res)=>{
     return res.status(500).send({message:'server error'})
   }
 })
+router.get('/isEditor/:id',requireAuth,async(req,res)=>{
+   try{
+    const userId=req.userId;
+    const {id} = req.params
+    if(id === userId) return res.status(200).send({editor: true })
+    return res.status(200).send({editor: false })
+    
+   }
+   catch(err) {
+    console.log(err);
+     return res.status(500).send({message: "server error"})
+   }
+})
 
 //     LOGOUT
 
