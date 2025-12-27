@@ -12,7 +12,7 @@ const addressSchema = new mongoose.Schema({
 const bookSchema = new mongoose.Schema({
   bookId: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Book',       
+    ref: 'books',       
     required: true 
   },
   currentlyReading: { 
@@ -49,7 +49,12 @@ const userSchema = new mongoose.Schema({
     required: false
   },
 
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  visitCount:{
+    type: Number,
+    default: 0
+  }
+
 });
 
 // Static Login Method
