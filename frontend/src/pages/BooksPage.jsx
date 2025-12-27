@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import PageNav from '../components/pageNav';
 
 import axios from 'axios';
-import Header from '../components/header';
+import Header from '../components/Header';
 import BooksGrid from '../components/BooksGrid';
 import { useNavigate } from 'react-router';
 
