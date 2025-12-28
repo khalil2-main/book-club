@@ -105,7 +105,7 @@ router.get('/:id',isParamValidator,validate ,async (req, res) => {
     res.status(500).json({ error: "Server error", details: err.message });
   }
 });
-
+//edit a book
 router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,adminOrEditorAuth,normalizeGenres,bookUpdateValidator,validate,async (req, res) => {
     const { id } = req.params;
 
@@ -151,7 +151,7 @@ router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,adminOrE
     }
   }
 );
-
+//delete a book
 router.delete('/:id',isParamValidator,requireAuth , adminOrEditorAuth , async (req, res) => {
   const {id}= req.params
   try {
@@ -177,6 +177,8 @@ router.delete('/:id',isParamValidator,requireAuth , adminOrEditorAuth , async (r
     res.status(500).json({ error: "Server error", details: err.message });
   }
 });
+
+
 
 
 module.exports=router
