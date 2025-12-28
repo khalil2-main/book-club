@@ -1,11 +1,9 @@
 import axios from "axios";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import noImage from "../assets/images/default_book_cover.jpg";
 import { useAuth } from "../context/AuthContext";
-
-
 
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
@@ -17,15 +15,14 @@ const InfoRow = ({ label, children }) => (
   </div>
 );
 
-/* ---------- Placeholder book (fallback) ---------- */
+/* ---------- Placeholder book ---------- */
 const PLACEHOLDER_BOOK = {
   title: "Book not found",
   author: "Unknown author",
   language: "—",
   pageNumbers: "—",
   genres: ["Unknown"],
-  summary:
-    "This book could not be found. It may have been deleted or the link is incorrect.",
+  summary: "This book could not be found.",
   isbn: "—",
   publishedYear: "—",
   coverImageUrl: noImage,
@@ -34,17 +31,17 @@ const PLACEHOLDER_BOOK = {
   dateAdded: null,
 };
 
-
 /* ---------- Star rating ---------- */
 const Stars = ({ value = 0 }) => {
   const full = Math.floor(value);
-
   return (
     <div className="flex items-center space-x-1">
       {Array.from({ length: 5 }).map((_, i) => (
         <span
           key={i}
-          className={`text-lg ${i < full ? "text-yellow-500" : "text-gray-300"}`}
+          className={`text-lg ${
+            i < full ? "text-yellow-500" : "text-gray-300"
+          }`}
         >
           ★
         </span>
@@ -58,35 +55,58 @@ const Stars = ({ value = 0 }) => {
 
 /* ---------- Main component ---------- */
 export default function BookInfo() {
-  const [preview, setPreview]= useState(noImage)
   const { id } = useParams();
   const navigate = useNavigate();
+  const { admin } = useAuth();
 
   const [book, setBook] = useState(null);
+  const [preview, setPreview] = useState(noImage);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
-  const {admin}= useAuth()
-  const [editor, setEditor]= useState(false)
+  const [editor, setEditor] = useState(false);
+
+  // user book states
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isReading, setIsReading] = useState(false);
+
+  /* ---------- Check editor ---------- */
+  const checkEditor = async (id) => {
+    const res = await axios.get(`/api/isEditor/${id}`);
+    setEditor(res.data.editor);
+  };
+
+  /* ---------- Fetch user book status ---------- */
+  const fetchUserBookStatus = async () => {
+    try {
+      const res = await axios.get(`/api/user/book-status/${id}`);
+      setIsFavorite(res.data.favorite);
+      setIsReading(res.data.currentlyReading);
+    } catch {
+      // book not in user's list yet
+    }
+  };
+
   /* ---------- Fetch book ---------- */
-  const checkEditor=async(id)=>{
-    const res= await axios.get(`/api/isEditor/${id}`);
-    console.log(res.data)
-    setEditor(res.data.editor)
-  }
   useEffect(() => {
     const ac = new AbortController();
 
     const getBook = async () => {
       try {
-        const res = await axios.get(`/api/book/${id}`, { signal: ac.signal });
+        const res = await axios.get(`/api/book/${id}`, {
+          signal: ac.signal,
+        });
+
         setBook(res.data.book || PLACEHOLDER_BOOK);
-        await checkEditor(res.data.book.createdBy)
-        if(res.data.book.coverImageUrl) setPreview(res.data.book.coverImageUrl)
-        
+        if (res.data.book?.coverImageUrl) {
+          setPreview(res.data.book.coverImageUrl);
+        }
+
+        await checkEditor(res.data.book.createdBy);
+        await fetchUserBookStatus();
       } catch (err) {
-        if (axios.isCancel(err)) return;
-        setBook(PLACEHOLDER_BOOK);
-       
+        if (!axios.isCancel(err)) {
+          setBook(PLACEHOLDER_BOOK);
+        }
       } finally {
         setLoading(false);
       }
@@ -96,12 +116,38 @@ export default function BookInfo() {
     return () => ac.abort();
   }, [id]);
 
+  /* ---------- Toggle favorite ---------- */
+  const toggleFavorite = async () => {
+    try {
+      await axios.patch(`/api/user/addFav/${id}`);
+      setIsFavorite((prev) => !prev);
+      toast.success(
+        !isFavorite ? "Added to favorites ❤️" : "Removed from favorites 💔"
+      );
+    } catch {
+      toast.error("Failed to update favorite");
+    }
+  };
+
+  /* ---------- Toggle reading ---------- */
+  const toggleReading = async () => {
+    try {
+      await axios.patch(`/api/user/addtoreading/${id}`);
+      setIsReading((prev) => !prev);
+      toast.success(
+        !isReading ? "Marked as reading 📖" : "Reading stopped"
+      );
+    } catch {
+      toast.error("Failed to update reading status");
+    }
+  };
+
   /* ---------- Delete book ---------- */
   const handleDelete = async () => {
     toast(
       (t) => (
         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-          <span className="text-sm text-gray-700 mb-2 sm:mb-0">
+          <span className="text-sm text-gray-700">
             Are you sure you want to delete this book?
           </span>
           <div className="flex space-x-2">
@@ -124,7 +170,7 @@ export default function BookInfo() {
               Yes
             </button>
             <button
-              className="px-3 py-1 bg-gray-300 text-gray-800 rounded text-sm"
+              className="px-3 py-1 bg-gray-300 rounded text-sm"
               onClick={() => toast.dismiss(t.id)}
             >
               Cancel
@@ -136,18 +182,16 @@ export default function BookInfo() {
     );
   };
 
-  /* ---------- Loading state ---------- */
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-violet-600 font-medium animate-pulse">
+        <div className="text-violet-600 animate-pulse">
           Loading book details...
         </div>
       </div>
     );
   }
 
-  /* ---------- Destructure safely ---------- */
   const {
     title,
     author,
@@ -157,9 +201,8 @@ export default function BookInfo() {
     summary,
     isbn,
     publishedYear,
-    
     rating,
-    status,
+   
     dateAdded,
   } = book || PLACEHOLDER_BOOK;
 
@@ -175,7 +218,7 @@ export default function BookInfo() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-full bg-white shadow text-indigo-600 hover:shadow-md"
+              className="p-2 rounded-full bg-white shadow text-indigo-600"
             >
               ←
             </button>
@@ -185,30 +228,33 @@ export default function BookInfo() {
             </div>
           </div>
 
-          {(admin || editor)&&
-          (<div className="flex items-center space-x-3">
-            <Link
-              to={`/books/${id}/edit`}
-              className="px-4 py-2 bg-white border text-indigo-600 rounded shadow-sm"
-            >
-              Edit
-            </Link>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="px-4 py-2 bg-red-50 text-red-600 border rounded shadow-sm disabled:opacity-50"
-            >
-              {deleting ? "Deleting..." : "Delete"}
-            </button>
-          </div>)}
+          {(admin || editor) && (
+            <div className="flex space-x-3">
+              <Link
+                to={`/books/${id}/edit`}
+                className="px-4 py-2 bg-white border text-indigo-600 rounded"
+              >
+                Edit
+              </Link>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-50 text-red-600 border rounded"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Card */}
         <div className="bg-white rounded-2xl shadow p-6 md:p-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
+          
             {/* Cover */}
-            <div className="flex flex-col items-center md:items-start">
-              <div className="w-56 h-80 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="flex flex-col items-center">
+              {/* Image */}
+              <div className="w-56 h-80 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                 <img
                   src={preview}
                   alt={title}
@@ -216,22 +262,37 @@ export default function BookInfo() {
                 />
               </div>
 
-              <div className="mt-4">
-                <div className="text-xs text-gray-500">Status</div>
-                <div className="mt-1 inline-block px-3 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-700">
-                  {status === "reading"
-                    ? "Reading"
-                    : status === "completed"
-                    ? "Completed"
-                    : "Want to Read"}
-                </div>
+              {/* ACTION BUTTONS (same row) */}
+              <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-xs">
+                <button
+                  onClick={toggleFavorite}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition
+                    ${isFavorite
+                      ? "bg-pink-100 text-pink-600 border-pink-200"
+                      : "bg-white text-gray-700 hover:bg-gray-50"}
+                  `}
+                >
+                  {isFavorite ? "★ Favorited" : "☆ Favorite"}
+                </button>
+
+                <button
+                  onClick={toggleReading}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition
+                    ${isReading
+                      ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                      : "bg-white text-gray-700 hover:bg-gray-50"}
+                  `}
+                >
+                  {isReading ? "📖 Reading" : "▶ Read"}
+                </button>
               </div>
 
-              <div className="mt-4">
-                <div className="text-xs text-gray-500">Added on</div>
-                <div className="text-sm text-gray-700">{formattedDate}</div>
+              {/* Date */}
+              <div className="mt-3 text-xs text-gray-500">
+                Added on: {formattedDate}
               </div>
             </div>
+
 
             {/* Details */}
             <div className="md:col-span-2">
@@ -259,20 +320,13 @@ export default function BookInfo() {
                 </InfoRow>
               </div>
 
-              <h3 className="text-sm text-violet-600 font-medium mb-2">Summary</h3>
+              <h3 className="text-sm text-violet-600 font-medium mb-2">
+                Summary
+              </h3>
               <p className="text-sm text-gray-700 leading-relaxed">
                 {summary || "No summary available."}
               </p>
             </div>
-          </div>
-
-          <div className="mt-6">
-            <Link
-              to="/"
-              className="px-4 py-2 text-sm bg-white border rounded shadow-sm text-indigo-600"
-            >
-              ← Back to dashboard
-            </Link>
           </div>
         </div>
       </div>

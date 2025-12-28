@@ -181,6 +181,76 @@ router.patch('/:id',updateUserValidator,async (req, res)=>{
   }  
   });
 
+
+// books related routes
+
+// add a book to favorite book list
+router.patch('/addFav/:id', async(req,res)=>{
+  try{const userId= req.userId;
+  const bookId= req.params.id;
+  const user= await  User.findById(userId)
+  if(!user) return res.status(404).send({message : 'user not found'})
+  
+  bookIndex= user.books.findIndex(
+    (book=>book.bookId.toString()===bookId)
+  );
+  if(bookIndex!= -1){
+    user.books[bookIndex].favorite= !user.books[bookIndex].favorite;
+  }
+  else{
+    user.books.push({
+        bookId,
+      favorite: true,
+      currentlyReading: false
+    })
+  }
+  await user.save()
+   res.status(200).json({
+      message: 'Favorite status updated',
+      books: user.books
+    });
+  
+    res.status(200).send({user})
+  }catch(err){
+    console.log(err);
+    return res.status(500).send('server error')
+  }
+})
+
+//add to curently reading
+
+router.patch('/addtoreading/:id', async(req,res)=>{
+  try{const userId= req.userId;
+  const bookId= req.params.id;
+  const user= await  User.findById(userId)
+  if(!user) return res.status(404).send({message : 'user not found'})
+  
+  bookIndex= user.books.findIndex(
+    (book=>book.bookId.toString()===bookId)
+  );
+  if(bookIndex!= -1){
+    user.books[bookIndex].currentlyReading= !user.books[bookIndex].currentlyReading;
+  }
+  else{
+    user.books.push({
+        bookId,
+      favorite: false,
+      currentlyReading: true
+    })
+  }
+  await user.save()
+   res.status(200).json({
+      message: 'Favorite status updated',
+      books: user.books
+    });
+  
+    res.status(200).send({user})
+  }catch(err){
+    console.log(err);
+    return res.status(500).send('server error')
+  }
+})
+
   
 
 
