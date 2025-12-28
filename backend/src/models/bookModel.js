@@ -1,5 +1,26 @@
 const mongoose = require('mongoose');
 
+//review schema
+const reviewScheam= new mongoose.Schema({
+  userId:{
+    type: mongoose.Types.ObjectId,
+    ref:'users',
+    required:true
+  },
+  rating: { 
+    type: Number, 
+    min: [0, "Rating cannot be lower than 0"],
+    max: [5, "Rating cannot be higher than 5"],
+    default:0
+  },
+  Comment:{
+    type:String,
+    maxlength:500,
+
+  }
+
+},{_id: false});
+
 const bookSchema = new mongoose.Schema({
   title: { 
     type: String, 
@@ -67,6 +88,9 @@ const bookSchema = new mongoose.Schema({
     min: [0, "Rating cannot be lower than 0"],
     max: [5, "Rating cannot be higher than 5"],
     default:0
+  },
+  reviews:{
+    type: [reviewScheam]
   },
 
   status: {
