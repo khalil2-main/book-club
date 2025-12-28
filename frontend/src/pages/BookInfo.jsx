@@ -125,7 +125,7 @@ export default function BookInfo() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-violet-600 font-medium animate-pulse">
+        <div className="text-indigo-600 font-medium animate-pulse">
           Loading book details...
         </div>
       </div>

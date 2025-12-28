@@ -45,7 +45,11 @@ const App = () => {
         <Route path="signup" element={<Signup/> } ></Route>
         <Route path="login" element={<Login/> } ></Route>
 
+        {/* Protected Routes */}
         <Route path="profile" element={<ProtectedRoute><UserProfile/></ProtectedRoute>}></Route>
+        <Route path="profile/:id" element={<ProtectedRoute><UserProfile/></ProtectedRoute>}></Route>
+        <Route path="profile/edit/me" element={<ProtectedRoute><EditBookPage/></ProtectedRoute>}></Route>
+        <Route path="profile/edit/:id" element={<ProtectedRoute><EditBookPage/></ProtectedRoute>}></Route>
         <Route path="dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}></Route>
         <Route path="admin" element={<AdminRoute><AdminUsers/></AdminRoute>}></Route>
           <Route path="recentbooks" element={<ProtectedRoute><RecentBooks/></ProtectedRoute>}></Route>
