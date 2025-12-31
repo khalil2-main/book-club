@@ -2,7 +2,6 @@
 import { Route, Routes } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-import UserProfile from "../src/components/UserProfile";
 import AdminUsers from "./pages/AdminUsers";
 import Dashboard from "./pages/Dashboard";
 import HomePage from "./pages/HomePage";
@@ -16,6 +15,7 @@ import BooksPage from "./pages/BooksPage";
 import BookInfo from "./pages/BookInfo";
 import EditBookPage from "./pages/EditBookPage";
 import ProfilePage from "./pages/profilePage";
+import EditProfilePage from "./pages/EditProfilePage";
 
 const App = () => {
   return (
@@ -47,8 +47,10 @@ const App = () => {
         <Route path="login" element={<Login/> } ></Route>
         {/* User Routes */}
         <Route path="profile/me" element={<ProtectedRoute><ProfilePage mode="self"/></ProtectedRoute>}></Route>
+        <Route path="profile/edit/me" element={<ProtectedRoute><EditProfilePage mode="self"/></ProtectedRoute>}></Route>
 
         <Route path="profile/:id" element={<ProtectedRoute><ProfilePage mode="public"/></ProtectedRoute>}></Route>
+         <Route path="profile/edit/:id" element={<ProtectedRoute><EditProfilePage mode="public"/></ProtectedRoute>}></Route>
 
         <Route path="dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}></Route>
         <Route path="admin" element={<AdminRoute><AdminUsers/></AdminRoute>}></Route>
