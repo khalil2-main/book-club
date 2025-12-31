@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 import noImage from "../assets/images/no-picture.png";
+import axios from "axios";
+import { Search } from "lucide-react";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -12,10 +14,55 @@ const Header = () => {
   const menuRef = useRef(null);
   const [preview, setPreview] = useState(noImage);
 
+  const [search, setSearch] = useState("");
+  const [results, setResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const debounceRef = useRef(null);
+  const searchRef = useRef(null);
+
  
         
 
-    
+  useEffect(() => {
+  if (!search.trim()) {
+    setResults([]);
+    return;
+  }
+
+  clearTimeout(debounceRef.current);
+
+  debounceRef.current = setTimeout(async () => {
+    try {
+      const res = await axios.get("/api/book", {
+        params: {
+          title: search,
+          page: 1
+        }
+      });
+
+      setResults(res.data.books.slice(0, 4));
+      setShowResults(true);
+    } catch (err) {
+      console.error(err);
+    }
+  }, 300);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [search]);
+
+    const handleSearchNavigate = () => {
+    if (!search.trim()) return;
+    setShowResults(false);
+    navigate(`/books?title=${encodeURIComponent(search)}`);
+  };
+
+  const handleResultClick = (title) => {
+    setSearch("");
+    setShowResults(false);
+    navigate(`/books?title=${encodeURIComponent(title)}`);
+  };
+
+
   useEffect(()=>{
     if(auth && user){
       setPreview(user.profileImage ?? noImage);
@@ -27,6 +74,10 @@ const Header = () => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setOpenMenu(false);
+        
+      }
+      if(searchRef.current && !searchRef.current.contains(e.target)){
+        setShowResults(false)
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -54,12 +105,45 @@ const Header = () => {
 
     {/* Books button */}
     <button
-      onClick={() => navigate("/books")}
+      onClick={() => {navigate("/books"); setSearch('')}}
       className="text-white font-semibold hover:underline transition"
     >
       Books
     </button>
   </div>
+  {/* Search bar */}
+    <div ref={searchRef} className="relative w-80">
+      <div className="flex items-center bg-white rounded-xl px-3 py-2 shadow">
+        <input
+          type="text"
+          placeholder="Search books..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onFocus={() => results.length && setShowResults(true)}
+          className="flex-1 outline-none text-sm"
+        />
+        <Search
+          className="w-5 h-5 text-gray-500 cursor-pointer hover:text-indigo-600"
+          onClick={handleSearchNavigate}
+        />
+      </div>
+
+      {/* Autocomplete results */}
+      {showResults && results.length > 0 && (
+        <div className="absolute top-12 left-0 w-full bg-white rounded-xl shadow-lg z-50">
+          {results.map((book) => (
+            <div
+              key={book._id}
+              onClick={() => handleResultClick(book.title)}
+              className="px-4 py-2 cursor-pointer hover:bg-indigo-50 text-sm"
+            >
+              {book.title}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
 
   {/* Right side: Auth/User */}
   <div className="flex items-center gap-4 mr-4">
