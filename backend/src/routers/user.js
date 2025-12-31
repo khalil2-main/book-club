@@ -1,11 +1,12 @@
 const { Router } = require('express');
 const User= require('./../models/userModel')
+const Book = require('./../models/bookModel')
 const fs = require('fs');
 const path = require('path');
 
 
 const { matchedData, validationResult}= require('express-validator')
-const {updateUserValidator}= require('../validators/UservalidationSchema');
+const {updateUserValidator, isParamValidator}= require('../validators/UservalidationSchema');
 const { hashPassword } = require('../utils/helpers');
 const { adminAuth}= require('../middlewares/auth');
 const creatUploader= require('../middlewares/upload')
@@ -80,8 +81,6 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
 //-- Admin user mangemnt api --//
 
 
-
-
 //filtering users
 router.get("/", adminAuth, async (req, res) => {
   try {
@@ -120,7 +119,7 @@ router.get("/", adminAuth, async (req, res) => {
 
 
 // get by ID
-router.get('/:id',async (req, res)=>{
+router.get('/:id',isParamValidator,async (req, res)=>{
     try{
       const {id }= req.params;
       const user = await User.findByIdAndUpdate(id,
@@ -139,7 +138,7 @@ router.get('/:id',async (req, res)=>{
 
 
 //update user information
-router.patch('/:id',updateUserValidator,async (req, res)=>{
+router.patch('/:id',isParamValidator,updateUserValidator,async (req, res)=>{
     try{
       const {id}= req.params;
       const result= validationResult(req)
@@ -167,7 +166,7 @@ router.patch('/:id',updateUserValidator,async (req, res)=>{
   }  
   });
 // delete user
-  router.delete('/:id',async (req, res,next)=>{
+  router.delete('/:id',isParamValidator,async (req, res,next)=>{
     try{
       const {id }= req.params;
       const deleteUser = await User.findByIdAndDelete(id)
@@ -182,10 +181,10 @@ router.patch('/:id',updateUserValidator,async (req, res)=>{
   });
 
 
-// books related routes
+//--books related routes--//
 
 // add a book to favorite book list
-router.patch('/addFav/:id', async(req,res)=>{
+router.patch('/addFav/:id',isParamValidator, async(req,res)=>{
   try{const userId= req.userId;
   const bookId= req.params.id;
   const user= await  User.findById(userId)
@@ -219,7 +218,7 @@ router.patch('/addFav/:id', async(req,res)=>{
 
 //add to curently reading
 
-router.patch('/addtoreading/:id', async(req,res)=>{
+router.patch('/addtoreading/:id',isParamValidator, async(req,res)=>{
   try{const userId= req.userId;
   const bookId= req.params.id;
   const user= await  User.findById(userId)
@@ -271,7 +270,78 @@ router.get('/book-status/:id',async(req,res)=>{
     return res.status(500).send('server error')
   }
 })
-  
+
+router.get('/books/favorites/:id', isParamValidator, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId).populate('books.bookId');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const favoriteBooks = user.books
+      .filter(book => book.favorite)
+      .map(book => book.bookId);
+
+    if (favoriteBooks.length === 0) {
+      return res.status(404).json({ message: 'No favorite books found' });
+    }
+
+    res.status(200).json({ favoriteBooks });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+router.get('/books/currentlyReading/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId).populate('books.bookId');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const readingBooks = user.books
+      .filter(book => book.currentlyReading)
+      .map(book => book.bookId);
+
+    if (readingBooks.length === 0) {
+      return res.status(404).json({ message: "Haven't started reading yet" });
+    }
+
+    res.status(200).json({ readingBooks });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get('/CreatedBooks/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const books = await Book.find({ createdBy: userId });
+
+    if (books.length === 0) {
+      return res.status(404).json({
+        message: 'You have not added any books'
+      });
+    }
+
+    res.status(200).json({ books });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+ 
 
 
 module.exports= router;
