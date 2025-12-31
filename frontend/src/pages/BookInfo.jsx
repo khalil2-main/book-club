@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import noImage from "../assets/images/default_book_cover.jpg";
 import { useAuth } from "../context/AuthContext";
+import { Stars } from "../components/Stars";
 
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
@@ -31,33 +32,12 @@ const PLACEHOLDER_BOOK = {
   dateAdded: null,
 };
 
-/* ---------- Star rating ---------- */
-const Stars = ({ value = 0 }) => {
-  const full = Math.floor(value);
-  return (
-    <div className="flex items-center space-x-1">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span
-          key={i}
-          className={`text-lg ${
-            i < full ? "text-yellow-500" : "text-gray-300"
-          }`}
-        >
-          ★
-        </span>
-      ))}
-      <span className="text-xs text-gray-500 ml-2">
-        ({value?.toFixed(1) ?? "0.0"})
-      </span>
-    </div>
-  );
-};
 
 /* ---------- Main component ---------- */
 export default function BookInfo() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { admin } = useAuth();
+  const { auth,admin} = useAuth();
 
   const [book, setBook] = useState(null);
   const [preview, setPreview] = useState(noImage);
@@ -224,7 +204,8 @@ export default function BookInfo() {
             </button>
             <div>
               <h1 className="text-2xl font-bold text-violet-600">{title}</h1>
-              <p className="text-sm text-gray-500">by {author}</p>
+              <p className="text-sm text-gray-500"
+              >by {author}</p>
             </div>
           </div>
 
@@ -263,7 +244,7 @@ export default function BookInfo() {
               </div>
 
               {/* ACTION BUTTONS (same row) */}
-              <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-xs">
+              {auth&& (<div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-xs">
                 <button
                   onClick={toggleFavorite}
                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition
@@ -285,7 +266,7 @@ export default function BookInfo() {
                 >
                   {isReading ? "📖 Reading" : "▶ Read"}
                 </button>
-              </div>
+              </div>)}
 
               {/* Date */}
               <div className="mt-3 text-xs text-gray-500">
@@ -299,7 +280,14 @@ export default function BookInfo() {
               <Stars value={rating ?? 0} />
 
               <div className="border-t border-b py-4 my-4">
-                <InfoRow label="Author">{author}</InfoRow>
+                <InfoRow label="Author"><span
+              className="author-name cursor-pointer  hover:underline hover:text-blue-800"
+
+              onClick={() => navigate(`/books?author=${encodeURIComponent(book.author)}`)}
+            >
+              {author}
+            </span>
+            </InfoRow>
                 <InfoRow label="Language">{language}</InfoRow>
                 <InfoRow label="Pages">
                   {pageNumbers ? `${pageNumbers} pages` : "—"}
