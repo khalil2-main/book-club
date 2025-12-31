@@ -30,10 +30,19 @@ router.get('/top', async(req, res) => {
 router.get('/',pageValidator, validate, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
+    const { title, author } = req.query;
+    const query={}
+    if(title){
+      query.title={
+        $regex: `^${title}`,
+        $options:'i'
+      }
+    }
+    if(author) query.author=author
 
     const skip = (page - 1) * limit;
 
-    const books = await Book.find()
+    const books = await Book.find(query)
       .sort({ rating: 1 })
       .skip(skip)
       .limit(limit);
@@ -48,8 +57,17 @@ router.get('/',pageValidator, validate, async (req, res) => {
 // Get number of pages
 router.get('/npage', async(req, res) => {
   try
-{
-    const totalBooks = await Book.countDocuments();
+{ const { title, author } = req.query;
+    const query={}
+    if(title){
+      query.title={
+        $regex: `^${title}`,
+        $options:'i'
+      }
+    }
+    if(author) query.author=author
+
+    const totalBooks = await Book.find(query).countDocuments()
     
     const totalPages = Math.ceil(totalBooks / limit);
     res.status(200).send({ totalPages });
