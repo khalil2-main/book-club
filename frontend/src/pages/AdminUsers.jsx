@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "../components/Header";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -14,7 +15,7 @@ const AdminUsers = () => {
     email: "",
     role: "",
   });
-
+  const navigate= useNavigate();
   // ==============================
   // FETCH USERS (with filters)
   // ==============================
@@ -212,6 +213,12 @@ const AdminUsers = () => {
                           {u.admin ? "Admin" : "User"}
                         </span>
 
+                        <button
+                          onClick={() => navigate(`/profile/${u._id}`)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded"
+                        >
+                          view
+                        </button>
                         <button
                           onClick={() => handleDelete(u._id)}
                           className="bg-red-500 text-white px-3 py-1 rounded"
