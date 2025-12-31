@@ -12,7 +12,7 @@ const addressSchema = new mongoose.Schema({
 const bookSchema = new mongoose.Schema({
   bookId: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'books',       
+    ref: 'Book',       
     required: true 
   },
   currentlyReading: { 
