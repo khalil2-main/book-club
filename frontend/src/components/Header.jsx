@@ -188,7 +188,7 @@ const Header = () => {
         {openMenu && (
           <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg py-2 z-50">
             <button onClick={() => { navigate("/dashboard"); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Dashboard</button>
-            <button onClick={() => { navigate("/profile"); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
+            <button onClick={() => { navigate("/profile/me"); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
             {admin && <button onClick={() => { navigate("/admin"); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Admin</button>}
             <button onClick={() => { logout(); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500">Logout</button>
           </div>
