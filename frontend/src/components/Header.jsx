@@ -19,6 +19,7 @@ const Header = () => {
   const [showResults, setShowResults] = useState(false);
   const debounceRef = useRef(null);
   const searchRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(-1)
 
  
         
@@ -84,7 +85,30 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   },);
 
-  
+  // keybord navigation
+  const handleKeyDown = (e) => {
+  if (!results.length) return;
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    setActiveIndex((prev) => (prev + 1) % results.length);
+  }
+
+  if (e.key === "ArrowUp") {
+    e.preventDefault();
+    setActiveIndex((prev) => (prev - 1 + results.length) % results.length);
+  }
+
+  if (e.key === "Enter") {
+    e.preventDefault();
+    if (activeIndex >= 0 && activeIndex < results.length) {
+      handleResultClick(results[activeIndex].title);
+    } else if (search.trim()) {
+      handleSearchNavigate();
+    }
+  }
+};
+
 
   return (
     <header className="w-full bg-indigo-400 shadow-md">
@@ -120,6 +144,7 @@ const Header = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onFocus={() => results.length && setShowResults(true)}
+          onKeyDown={handleKeyDown}
           className="flex-1 outline-none text-sm"
         />
         <Search
@@ -130,18 +155,21 @@ const Header = () => {
 
       {/* Autocomplete results */}
       {showResults && results.length > 0 && (
-        <div className="absolute top-12 left-0 w-full bg-white rounded-xl shadow-lg z-50">
-          {results.map((book) => (
-            <div
-              key={book._id}
-              onClick={() => handleResultClick(book.title)}
-              className="px-4 py-2 cursor-pointer hover:bg-indigo-50 text-sm"
-            >
-              {book.title}
-            </div>
-          ))}
-        </div>
-      )}
+  <div className="absolute top-12 left-0 w-full bg-white rounded-xl shadow-lg z-50">
+    {results.map((book, index) => (
+      <div
+        key={book._id}
+        onClick={() => handleResultClick(book.title)}
+        className={`px-4 py-2 cursor-pointer text-sm ${
+          index === activeIndex ? "bg-indigo-100 text-indigo-900" : "text-gray-700"
+        }`}
+      >
+        {book.title}
+      </div>
+    ))}
+  </div>
+)}
+
     </div>
 
 
