@@ -6,10 +6,15 @@ import PageNav from '../components/pageNav';
 import axios from 'axios';
 import Header from '../components/Header';
 import BooksGrid from '../components/BooksGrid';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 
 export default function BooksPage() {
+  const [searchParams] = useSearchParams();
+
+  const author = searchParams.get('author') || '';
+  const title = searchParams.get('title') || '';
+
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -18,7 +23,13 @@ export default function BooksPage() {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await axios.get(`/api/book?page=${page}`);
+        const res = await axios.get(`/api/book`,{
+           params: {
+          page,
+          author,
+          title
+        }
+        });
         setBooks(res.data.books);
       } catch (error) {
         console.error('Error fetching books:', error);
@@ -26,7 +37,7 @@ export default function BooksPage() {
     };
 
     fetchBooks();
-  }, [page]);
+  }, [page, author, title]);
 
   useEffect(() => {
     try {
