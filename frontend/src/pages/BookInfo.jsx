@@ -5,6 +5,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import noImage from "../assets/images/default_book_cover.jpg";
 import { useAuth } from "../context/AuthContext";
 import { Stars } from "../components/Stars";
+import useConfirmDelete from "../Hooks/ConfirmDelete";
 
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
@@ -44,6 +45,7 @@ export default function BookInfo() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [editor, setEditor] = useState(false);
+  const confirmDelete= useConfirmDelete()
 
   // user book states
   const [isFavorite, setIsFavorite] = useState(false);
@@ -124,42 +126,14 @@ export default function BookInfo() {
 
   /* ---------- Delete book ---------- */
   const handleDelete = async () => {
-    toast(
-      (t) => (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-          <span className="text-sm text-gray-700">
-            Are you sure you want to delete this book?
-          </span>
-          <div className="flex space-x-2">
-            <button
-              className="px-3 py-1 bg-red-600 text-white rounded text-sm"
-              onClick={async () => {
-                toast.dismiss(t.id);
-                try {
-                  setDeleting(true);
-                  await axios.delete(`/api/book/${id}`);
-                  toast.success("Book deleted successfully!");
-                  navigate("/books");
-                } catch {
-                  toast.error("Failed to delete the book.");
-                } finally {
-                  setDeleting(false);
-                }
-              }}
-            >
-              Yes
-            </button>
-            <button
-              className="px-3 py-1 bg-gray-300 rounded text-sm"
-              onClick={() => toast.dismiss(t.id)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ),
-      { duration: Infinity }
-    );
+    
+    confirmDelete({
+      onStart: () => setDeleting(true),
+      endpoint:`/api/book/${id}`,
+      onSuccess: ()=>{navigate('/books')},
+     onFinally: () => setDeleting(false)
+    })
+   
   };
 
   if (loading) {
