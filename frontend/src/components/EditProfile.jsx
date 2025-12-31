@@ -1,33 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import SideImage from "./sideimage";
-import { useAuth } from "../context/AuthContext";
 import Input from "./Input";
-import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import noImage from "../assets/images/no-picture.png";
-import toast from "react-hot-toast";
 
 const letterRegex = /^[\p{L}\p{M} ]+$/u;
 
-// ---------------- update function ----------------
-const updateUser = async (formData, mode, id) => {
-  const userEndpoint = mode === "self" ? "/api/user/me" : `/api/user/${id}`;
-  try {
-    const res = await axios.patch(userEndpoint, formData, {
-      withCredentials: true,
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return res.data;
-  } catch (err) {
-    console.error("Update failed:", err);
-    throw err;
-  }
-};
-
 const EditProfile = ({ mode }) => {
-  const { setUser, user } = useAuth();
+  const { user, setUser } = useAuth();
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState(noImage);
+  const [errors, setErrors] = useState({});
+
   const [form, setForm] = useState({
     firstname: "",
     lastname: "",
@@ -36,236 +27,233 @@ const EditProfile = ({ mode }) => {
     address: { location: "", city: "", country: "" },
     image: null,
   });
-  const [preview, setPreview] = useState(noImage);
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
-  // ---------------- FETCH USER ----------------
+  /* ---------------- FETCH USER ---------------- */
   useEffect(() => {
-    if (!user) return;
+    const loadUser = async () => {
+      try {
+        let target;
 
-    setForm({
-      firstname: user.firstname || "",
-      lastname: user.lastname || "",
-      email: user.email || "",
-      birthday: user.birthday ? user.birthday.split("T")[0] : "",
-      address: {
-        location: user.address?.location || "",
-        city: user.address?.city || "",
-        country: user.address?.country || "",
-      },
-      image: null,
-    });
+        if (mode === "self") {
+          if (!user) return;
+          target = user;
+        } else {
+          const res = await axios.get(`/api/user/${id}`, {
+            withCredentials: true,
+          });
+          target = res.data.user;
+        }
 
-    setPreview(user.profileImage || noImage);
-    setLoading(false);
-  }, [user]);
+        setForm({
+          firstname: target.firstname || "",
+          lastname: target.lastname || "",
+          email: target.email || "",
+          birthday: target.birthday
+            ? target.birthday.split("T")[0]
+            : "",
+          address: {
+            location: target.address?.location || "",
+            city: target.address?.city || "",
+            country: target.address?.country || "",
+          },
+          image: null,
+        });
 
-  // ---------------- IMAGE PREVIEW CLEANUP ----------------
+        setPreview(target.profileImage || noImage);
+        setLoading(false);
+      } catch {
+        toast.error("Failed to load profile");
+        navigate(-1);
+      }
+    };
+
+    loadUser();
+  }, [mode, id, user, navigate]);
+
+  /* ---------------- CLEANUP PREVIEW ---------------- */
   useEffect(() => {
     return () => {
       if (preview && preview !== noImage) URL.revokeObjectURL(preview);
     };
   }, [preview]);
 
-  // ---------------- VALIDATION ----------------
+  /* ---------------- VALIDATION ---------------- */
   const validateField = (name, value) => {
-    switch (name) {
-      case "firstname":
-      case "lastname":
-        if (!value || value.length < 3) return "Must be at least 3 characters";
-        if (!letterRegex.test(value)) return "Letters only";
-        return "";
-      case "city":
-      case "country":
-        if (value && !letterRegex.test(value)) return "Letters only";
-        return "";
-      default:
-        return "";
+    if (["firstname", "lastname"].includes(name)) {
+      if (!value || value.length < 3) return "Minimum 3 characters";
+      if (!letterRegex.test(value)) return "Letters only";
     }
+    if (["city", "country"].includes(name)) {
+      if (value && !letterRegex.test(value)) return "Letters only";
+    }
+    return "";
   };
 
   const validateForm = () => {
-    const nextErrors = {
+    const next = {
       firstname: validateField("firstname", form.firstname),
       lastname: validateField("lastname", form.lastname),
       city: validateField("city", form.address.city),
       country: validateField("country", form.address.country),
     };
-    setErrors(nextErrors);
-    return Object.values(nextErrors).every((msg) => !msg);
+    setErrors(next);
+    return Object.values(next).every((e) => !e);
   };
 
-  // ---------------- HANDLE CHANGE ----------------
+  /* ---------------- HANDLE CHANGE ---------------- */
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    // IMAGE
     if (name === "image") {
       const file = files[0];
-      setForm({ ...form, image: file });
-      if (file) setPreview(URL.createObjectURL(file));
+      if (file) {
+        setForm((p) => ({ ...p, image: file }));
+        setPreview(URL.createObjectURL(file));
+      }
       return;
     }
 
-    // ADDRESS
     if (["location", "city", "country"].includes(name)) {
-      setForm({ ...form, address: { ...form.address, [name]: value } });
-      setErrors({ ...errors, [name]: validateField(name, value) });
+      setForm((p) => ({
+        ...p,
+        address: { ...p.address, [name]: value },
+      }));
+      setErrors((p) => ({ ...p, [name]: validateField(name, value) }));
       return;
     }
 
-    // NORMAL FIELDS
-    setForm({ ...form, [name]: value });
-    setErrors({ ...errors, [name]: validateField(name, value) });
+    setForm((p) => ({ ...p, [name]: value }));
+    setErrors((p) => ({ ...p, [name]: validateField(name, value) }));
   };
 
-  // ---------------- HANDLE SUBMIT ----------------
+  /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const formData = new FormData();
-    formData.append("firstname", form.firstname);
-    formData.append("lastname", form.lastname);
-    formData.append("birthday", form.birthday);
-    formData.append("address", JSON.stringify(form.address));
-    if (form.image) formData.append("image", form.image);
+    const fd = new FormData();
+    fd.append("firstname", form.firstname);
+    fd.append("lastname", form.lastname);
+    fd.append("birthday", form.birthday);
+    fd.append("address", JSON.stringify(form.address));
+    if (form.image) fd.append("image", form.image);
 
     try {
-      const updated = await updateUser(formData, mode, id);
-      setUser((prev) => ({
-        ...prev,
-        ...updated.updateUser,
-      }));
-      toast.success("Profile updated successfully!");
+      const endpoint =
+        mode === "self" ? "/api/user/me" : `/api/user/${id}`;
+
+      const res = await axios.patch(endpoint, fd, {
+        withCredentials: true,
+      });
+
+      if (mode === "self") {
+        setUser((prev) => ({ ...prev, ...res.data.updateUser }));
+      }
+
+      toast.success("Profile updated");
+      navigate(-1);
     } catch (err) {
-      toast.error(err?.response?.data?.errors || "Update failed");
+      console.log(err)
+      toast.error("Update failed");
     }
   };
 
   if (loading) return <div className="p-6 text-center">Loading...</div>;
 
+  /* ---------------- UI ---------------- */
   return (
-    <>
-      
-      <div className="flex items-center justify-center min-h-screen bg-blue-50">
-        <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden w-8/12">
-          <div className="w-full md:w-1/2 flex items-center justify-center p-6">
-            <div className="w-full max-w-2xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div></div>
-                <h2 className="text-2xl font-semibold">Edit Profile</h2>
-                <button
-                  type="button"
-                  onClick={() => navigate(-1)}
-                  className="px-3 py-1 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-                >
-                  Back
-                </button>
-              </div>
+    <div className="flex min-h-screen items-center justify-center bg-blue-50">
+      <div className="flex w-10/12 overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="w-full p-8 md:w-1/2">
+          <div className="mb-6 flex justify-between items-center">
+            <h2 className="text-2xl font-semibold">Edit Profile</h2>
+            <button
+              onClick={() => navigate(-1)}
+              className="rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
+            >
+              Back
+            </button>
+          </div>
 
-              <div className="flex items-center gap-6 mb-6">
-                {/* PROFILE IMAGE */}
-                <div className="w-full flex justify-center mb-6">
-                  <label htmlFor="imageUpload" className="cursor-pointer">
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="w-28 h-28 rounded-full object-cover border hover:opacity-80 transition"
-                    />
-                  </label>
-                  <input
-                    id="imageUpload"
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    onChange={handleChange}
-                    className="hidden"
-                  />
-                </div>
-              </div>
+          <div className="mb-6 flex justify-center">
+            <label className="cursor-pointer">
+              <img
+                src={preview}
+                alt="Profile"
+                className="h-28 w-28 rounded-full border object-cover"
+              />
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                hidden
+                onChange={handleChange}
+              />
+            </label>
+          </div>
 
-              {/* FORM */}
-              <form onSubmit={handleSubmit} className="space-y-4 w-full">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <Input
-                    name="firstname"
-                    placeholder="First Name"
-                    value={form.firstname}
-                    onChange={handleChange}
-                    error={errors.firstname}
-                    className="flex-1"
-                  />
-                  <Input
-                    name="lastname"
-                    placeholder="Last Name"
-                    value={form.lastname}
-                    onChange={handleChange}
-                    error={errors.lastname}
-                    className="flex-1"
-                  />
-                </div>
-
-                <Input
-                  name="email"
-                  type="email"
-                  placeholder="Email"
-                  value={form.email}
-                  disabled
-                  className="opacity-60 bg-gray-100"
-                />
-
-                <Input
-                  name="birthday"
-                  type="date"
-                  value={form.birthday}
-                  onChange={handleChange}
-                />
-
-                <Input
-                  name="location"
-                  placeholder="Street / Location"
-                  value={form.address.location}
-                  onChange={handleChange}
-                />
-
-                <div className="flex flex-col md:flex-row gap-4">
-                  <Input
-                    name="city"
-                    placeholder="City"
-                    value={form.address.city}
-                    onChange={handleChange}
-                    error={errors.city}
-                    className="flex-1"
-                  />
-                  <Input
-                    name="country"
-                    placeholder="Country"
-                    value={form.address.country}
-                    onChange={handleChange}
-                    error={errors.country}
-                    className="flex-1"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
-                >
-                  Save Changes
-                </button>
-              </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex gap-4">
+              <Input
+                name="firstname"
+                value={form.firstname}
+                onChange={handleChange}
+                error={errors.firstname}
+                placeholder="First name"
+              />
+              <Input
+                name="lastname"
+                value={form.lastname}
+                onChange={handleChange}
+                error={errors.lastname}
+                placeholder="Last name"
+              />
             </div>
-          </div>
 
-          <div className="w-full md:w-1/2">
-            <SideImage />
-          </div>
+            <Input name="email" value={form.email} disabled />
+
+            <Input
+              type="date"
+              name="birthday"
+              value={form.birthday}
+              onChange={handleChange}
+            />
+
+            <Input
+              name="location"
+              value={form.address.location}
+              onChange={handleChange}
+              placeholder="Street"
+            />
+
+            <div className="flex gap-4">
+              <Input
+                name="city"
+                value={form.address.city}
+                onChange={handleChange}
+                error={errors.city}
+                placeholder="City"
+              />
+              <Input
+                name="country"
+                value={form.address.country}
+                onChange={handleChange}
+                error={errors.country}
+                placeholder="Country"
+              />
+            </div>
+
+            <button className="w-full rounded bg-indigo-600 py-2 text-white hover:bg-indigo-700">
+              Save Changes
+            </button>
+          </form>
+        </div>
+
+        <div className="hidden md:block md:w-1/2">
+          <SideImage />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

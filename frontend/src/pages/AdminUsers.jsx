@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "../components/Header";
-import toast from "react-hot-toast";
+
 import { useNavigate } from "react-router-dom";
+import useConfirmDelete from "../Hooks/ConfirmDelete";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const [deleting, setDeleting] = useState(false);
   const [query, setQuery] = useState({
     firstname: "",
     lastname: "",
@@ -16,6 +17,7 @@ const AdminUsers = () => {
     role: "",
   });
   const navigate= useNavigate();
+  const confirmDelete= useConfirmDelete()
   // ==============================
   // FETCH USERS (with filters)
   // ==============================
@@ -61,21 +63,15 @@ const AdminUsers = () => {
   // ==============================
   // DELETE USER
   // ==============================
-  const handleDelete = async (id) => {
-    if (!window.confirm("Supprimer cet utilisateur ?")) return;
+const handleDelete = (id) => {
+  confirmDelete({
+    onStart:()=>setDeleting(true),
+    endpoint:`/api/user/${id}`,
+    onSuccess:() => setUsers((prev) => prev.filter((u) => u._id !== id)),
+    onFinally:()=>setDeleting(false)
+  })
+};
 
-    try {
-      await axios.delete(`/api/user/${id}`, {
-        withCredentials: true,
-      });
-
-      setUsers((prev) => prev.filter((u) => u._id !== id));
-      toast.success("Utilisateur supprimé");
-    } catch (err) {
-      console.error("Delete failed:", err);
-      toast.error("Impossible de supprimer cet utilisateur");
-    }
-  };
 
   // ==============================
   // RESET FILTERS
@@ -215,15 +211,18 @@ const AdminUsers = () => {
 
                         <button
                           onClick={() => navigate(`/profile/${u._id}`)}
+                          disabled={deleting}
                           className="bg-blue-500 text-white px-3 py-1 rounded"
                         >
                           view
                         </button>
+                        {/*delete use button*/}
                         <button
                           onClick={() => handleDelete(u._id)}
+                          disabled={deleting}
                           className="bg-red-500 text-white px-3 py-1 rounded"
                         >
-                          Supprimer
+                          {deleting? 'deleting':'delete'}
                         </button>
                       </div>
                     </div>
