@@ -3,7 +3,7 @@ const User= require('./../models/userModel')
 const Book = require('./../models/bookModel')
 const fs = require('fs');
 const path = require('path');
-
+const validate = require('../middlewares/validate');
 
 const { matchedData, validationResult}= require('express-validator')
 const {updateUserValidator, isParamValidator}= require('../validators/UservalidationSchema');
@@ -32,16 +32,18 @@ router.get('/me', async(req, res)=>{
 });
 
 // --User update api --//
-router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>{
+router.patch('/me',upload.single('image'),updateUserValidator, validate,async (req, res)=>{
     try{
       const userId= req.userId;
-      const result= validationResult(req)
-      if(!result.isEmpty()){
-       erorrHandler(result)
-        res.status(400).send({errors});}
+     
+      
       const data= matchedData(req);
       const user = await User.findById(userId);
-    if (!user) return res.status(400).send({ error: 'document not found' });
+        // Handle address JSON string
+      if (req.body.address) {
+        data.address = JSON.parse(req.body.address);
+      }
+  
       if (req.file) {
 
       //delete the old picture if it exist
@@ -71,9 +73,10 @@ router.patch('/me',upload.single('image'),updateUserValidator,async (req, res)=>
     }catch(err){
      //duplicate error code
       if(err.code=== 11000){
-        errors.email='Email is already taken'
+         return res.status(400).send({
+          errors: [{ field: "email", message: "Email is already taken" }],});
       }
-      return res.status(400).send({errors});
+      return res.status(500).send({ error: "Server error" });
   }  
   });
 
@@ -138,33 +141,69 @@ router.get('/:id',isParamValidator,async (req, res)=>{
 
 
 //update user information
-router.patch('/:id',isParamValidator,updateUserValidator,async (req, res)=>{
-    try{
-      const {id}= req.params;
-      const result= validationResult(req)
-      if(!result.isEmpty()){
-       erorrHandler(result)
-        res.status(400).send({errors});}
-      const data= matchedData(req);
 
-      if(data.password)data.password=hashPassword(data.password)
+router.patch(
+  "/:id",upload.single("image"),isParamValidator,updateUserValidator,
+  validate,async (req, res) => {
+    try {
+      const { id } = req.params;
 
-      const user = await User.findByIdAndUpdate(id,data,{
-        new: true,
-        runValidators:true
-      })
-      
-      if(!user) return res.status(400).send({error: 'document not found' });
-      return res.status(200).send({user})
-    }catch(err){
-     //duplicate error code
-      if(err.code=== 11000){
-        errors.email='Email is already taken'
+  
+
+      let data = matchedData(req, { locations: ["body"] });
+
+      // Handle address JSON string
+      if (req.body.address) {
+        data.address = JSON.parse(req.body.address);
       }
-      return res.status(400).send({errors});
 
-  }  
-  });
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Handle image update
+      if (req.file) {
+        if (user.profileImage) {
+          const oldImagePath = path.join(
+            __dirname,
+            "../..",
+            user.profileImage
+          );
+
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+
+        data.profileImage = `/uploads/users/${req.file.filename}`;
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { $set: data },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      return res.status(200).json({ user: updatedUser });
+    } catch (err) {
+      console.error(err);
+
+      if (err.code === 11000) {
+        return res.status(400).json({
+          errors: [{ field: "email", message: "Email is already taken" }],
+        });
+      }
+
+      return res.status(500).json({ error: "Server error" });
+    }
+  }
+);
+
+
 // delete user
   router.delete('/:id',isParamValidator,async (req, res,next)=>{
     try{
