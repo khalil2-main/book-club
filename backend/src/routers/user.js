@@ -251,6 +251,26 @@ router.patch('/addtoreading/:id', async(req,res)=>{
   }
 })
 
+// get book stauts 
+router.get('/book-status/:id',async(req,res)=>{
+  try{
+    const userId= req.userId;
+  const bookId= req.params.id;
+   const user=await User.findById(userId);
+   if(!user)return res.status(404).send({message: 'User not found'})
+    const bookIndex= user.books.findIndex(
+      (book=>book.bookId.toString()===bookId)
+    )
+    if(bookIndex===-1) return res.status(404).send({messgae:'no staus related to this book'})
+      res.status(200).send({currentlyReading:user.books[bookIndex].currentlyReading, 
+    favorite:user.books[bookIndex].favorite})
+
+  }
+  catch(err){
+     console.log(err);
+    return res.status(500).send('server error')
+  }
+})
   
 
 
