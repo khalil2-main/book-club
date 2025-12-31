@@ -1,4 +1,4 @@
-const { body } = require("express-validator");
+const { body,param } = require("express-validator");
 
 // Create user validation
 const createUserValidator = [
@@ -103,9 +103,14 @@ const uploadProfileImageValidator = [
     .notEmpty().withMessage("Image buffer is required")
   ];
 
+  const isParamValidator = [
+    param('id').isMongoId().withMessage('Invalid ID format')
+  ];
+
 module.exports = {
   createUserValidator,
   updateUserValidator,
   authUserValidator,
-  uploadProfileImageValidator
+  uploadProfileImageValidator,
+  isParamValidator
 };
