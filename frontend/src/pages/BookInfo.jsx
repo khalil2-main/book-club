@@ -283,7 +283,7 @@ export default function BookInfo() {
                 <InfoRow label="Author"><span
               className="author-name cursor-pointer  hover:underline hover:text-blue-800"
 
-              onClick={() => navigate(`/books?author=${encodeURIComponent(book.author)}`)}
+              onClick={() => navigate(`/books?author=${encodeURIComponent(author)}`)}
             >
               {author}
             </span>
@@ -297,12 +297,14 @@ export default function BookInfo() {
                 <InfoRow label="Genres">
                   <div className="flex flex-wrap gap-2">
                     {genres.map((g, i) => (
-                      <span
-                        key={i}
-                        className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full"
-                      >
-                        {g}
-                      </span>
+                     <span
+                    key={i}
+                    className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full cursor-pointer hover:bg-indigo-100"
+                    onClick={() => navigate(`/books?genre=${encodeURIComponent(g)}`)}
+                  >
+                    {g}
+                  </span>
+
                     ))}
                   </div>
                 </InfoRow>

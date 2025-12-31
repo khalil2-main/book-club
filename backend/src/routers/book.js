@@ -30,7 +30,7 @@ router.get('/top', async(req, res) => {
 router.get('/',pageValidator, validate, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const { title, author } = req.query;
+    const { title, author, genre } = req.query;
     const query={}
     if(title){
       query.title={
@@ -39,6 +39,10 @@ router.get('/',pageValidator, validate, async (req, res) => {
       }
     }
     if(author) query.author=author
+     if(genre){
+       const genresArray = genre.split(',').map(g => g.trim());
+      query.genres = { $in: genresArray }
+    }
 
     const skip = (page - 1) * limit;
 
@@ -57,7 +61,7 @@ router.get('/',pageValidator, validate, async (req, res) => {
 // Get number of pages
 router.get('/npage', async(req, res) => {
   try
-{ const { title, author } = req.query;
+{ const { title, author ,genre} = req.query;
     const query={}
     if(title){
       query.title={
@@ -66,6 +70,10 @@ router.get('/npage', async(req, res) => {
       }
     }
     if(author) query.author=author
+    if(genre){
+       const genresArray = genre.split(',').map(g => g.trim());
+      query.genres = { $in: genresArray }
+    }
 
     const totalBooks = await Book.find(query).countDocuments()
     

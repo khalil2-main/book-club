@@ -14,6 +14,7 @@ export default function BooksPage() {
 
   const author = searchParams.get('author') || '';
   const title = searchParams.get('title') || '';
+  const genre= searchParams.get('genre') || ''
 
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(1);
@@ -27,7 +28,8 @@ export default function BooksPage() {
            params: {
           page,
           author,
-          title
+          title,
+          genre
         }
         });
         setBooks(res.data.books);
@@ -37,11 +39,18 @@ export default function BooksPage() {
     };
 
     fetchBooks();
-  }, [page, author, title]);
+  }, [page, author, title,genre]);
 
   useEffect(() => {
     try {
-      axios.get('/api/book/npage').then((res) => {
+      axios.get('/api/book/npage',{
+        params: {
+          page,
+          author,
+          title,
+          genre
+        }
+      }).then((res) => {
         setTotalPages(res.data.totalPages);
       });
     } catch (error) {
