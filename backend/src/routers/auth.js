@@ -7,7 +7,7 @@ const validate =require('../middlewares/validate')
 const jwt= require('jsonwebtoken');
 const { requireAuth } = require('../middlewares/auth');
 const router = Router();
-const aceesTokenAge = 3 * 24 * 60 * 60; 
+const aceesTokenAge = 10*60; 
 const refreshTokenTokenAge = 3 * 24 * 60 * 60; 
 
 //   REGISTER USER
@@ -22,12 +22,18 @@ router.post('/register', createUserValidator, validate, async (req, res) => {
     const newUser = new User(data);
     const savedUser = await newUser.save();
 
-    const token = creatToken(savedUser._id,aceesTokenAge);
-    res.cookie('jwt', token, {
+    const acessToken = creatToken(savedUser._id,aceesTokenAge);
+    res.cookie('acessToken', acessToken, {
       httpOnly: true,
       maxAge: aceesTokenAge * 1000,
     });
-
+    const refreshToken = jwt.sign({id:savedUser._id},process.env.REFRESH_TOKEN_KEY_SECRET,{
+      expiresIn: refreshTokenTokenAge
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: refreshTokenTokenAge * 1000,
+    });
     return res.status(201).send(savedUser);
   } catch (err) {
     if(err.code === 11000) return  res.status(400).send({error:{email:'this Email is already taken'}})
@@ -48,25 +54,61 @@ router.post('/login', authUserValidator, validate, async (req, res) => {
   try {
     const user = await User.login(email, password);
 
-    const token = creatToken(user._id,maxAge);
-    res.cookie('jwt', token, {
+    const acessToken = creatToken(user._id,aceesTokenAge);
+    res.cookie('acessToken', acessToken, {
       httpOnly: true,
-      maxAge: maxAge * 1000,
+      maxAge: aceesTokenAge * 1000,
+    });
+    const refreshToken = jwt.sign({id:user._id},process.env.REFRESH_TOKEN_KEY_SECRET,{
+      expiresIn: refreshTokenTokenAge
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: refreshTokenTokenAge * 1000,
     });
 
     return res.status(200).send({ user });
   } catch (err) {
-    const errors = {};
 
     if (err.message === 'incorrect Email')
       errors.email = 'The email is not registered';
 
     if (err.message === 'incorrect password')
       errors.password = 'The password is incorrect';
-
-    return res.status(400).send({ errors });
+    console.log(err)
+    return res.status(400).send({messge: 'server error' });
   }
 });
+
+
+// Refresh Token
+router.post('/refresh-token', async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.status(401).send('No refresh token');
+
+  try {
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_KEY_SECRET
+    );
+
+    const user = await User.findById(decoded.id);
+    if (!user)
+      return res.status(403).send('Invalid refresh token');
+
+    const newAccessToken = creatToken(user._id,aceesTokenAge);
+
+    res.cookie('acessToken', newAccessToken, {
+      httpOnly: true,
+      maxAge: aceesTokenAge * 1000
+    });
+
+    res.status(200).send({ message: 'Token refreshed' });
+  } catch (err) {
+    return res.status(403).send('Refresh token expired or invalid');
+  }
+});
+
 
 // Check token
 router.get('/check',(req,res)=>{
