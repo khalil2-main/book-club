@@ -2,23 +2,18 @@ const { Router } = require('express');
 const User = require('../models/userModel');
 const {matchedData, validationResult}= require('express-validator')
 const {createUserValidator,authUserValidator} = require('../validators/UservalidationSchema');
-const { hashPassword, creatToken, erorrHandler } = require('../utils/helpers');
+const { hashPassword, creatToken,} = require('../utils/helpers');
+const validate =require('../middlewares/validate')
 const jwt= require('jsonwebtoken');
 const { requireAuth } = require('../middlewares/auth');
 const router = Router();
-const maxAge = 3 * 24 * 60 * 60; 
-
+const aceesTokenAge = 3 * 24 * 60 * 60; 
+const refreshTokenTokenAge = 3 * 24 * 60 * 60; 
 
 //   REGISTER USER
 -
-router.post('/register', createUserValidator, async (req, res) => {
-  const result = validationResult(req);
-
-  if (!result.isEmpty()) {
-    console.log('here'+result)
-    const errors = erorrHandler(result);
-    return res.status(400).send({ errors });
-  }
+router.post('/register', createUserValidator, validate, async (req, res) => {
+  
 
   const data = matchedData(req);
   data.password = hashPassword(data.password);
@@ -27,30 +22,26 @@ router.post('/register', createUserValidator, async (req, res) => {
     const newUser = new User(data);
     const savedUser = await newUser.save();
 
-    const token = creatToken(savedUser._id,maxAge);
+    const token = creatToken(savedUser._id,aceesTokenAge);
     res.cookie('jwt', token, {
       httpOnly: true,
-      maxAge: maxAge * 1000,
+      maxAge: aceesTokenAge * 1000,
     });
 
     return res.status(201).send(savedUser);
   } catch (err) {
+    if(err.code === 11000) return  res.status(400).send({error:{email:'this Email is already taken'}})
     console.log(err)
-    const errors = erorrHandler(err);
-    return res.status(400).send({ errors });
+    
+    return res.status(400).send('serever error');
   }
 });
 
 
 //      LOGIN
 
-router.post('/login', authUserValidator, async (req, res) => {
-  const result = validationResult(req);
-
-  if (!result.isEmpty()) {
-    const errors = erorrHandler(result);
-    return res.status(400).send({ errors });
-  }
+router.post('/login', authUserValidator, validate, async (req, res) => {
+  
 
   const { email, password } = matchedData(req);
 
@@ -112,6 +103,7 @@ router.get('/isEditor/:id',requireAuth,async(req,res)=>{
     
    }
    catch(err) {
+    
     console.log(err);
      return res.status(500).send({message: "server error"})
    }
