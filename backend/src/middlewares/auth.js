@@ -3,7 +3,7 @@ const User= require('../models/userModel')
 const Book= require('../models/bookModel')
 
 const requireAuth= (req,res,next)=>{
-  const token=req.cookies.jwt;
+  const token=req.cookies.acessToken;
 
   if(token){
     jwt.verify(token,process.env.TOKEN_KEY_SECRET,(err, decodedToken)=>{
