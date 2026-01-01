@@ -1,4 +1,4 @@
-import api from './axios';
+import api from './axiose';
 
 let isRefreshing = false;
 let failedQueue = [];
