@@ -7,8 +7,8 @@ const validate =require('../middlewares/validate')
 const jwt= require('jsonwebtoken');
 const { requireAuth } = require('../middlewares/auth');
 const router = Router();
-const aceesTokenAge = 10*60; 
-const refreshTokenTokenAge = 3 * 24 * 60 * 60; 
+const aceesTokenAge = 10*60; //10minuts
+const refreshTokenTokenAge = 7 * 24 * 60 * 60; // a week
 
 //   REGISTER USER
 -
@@ -22,10 +22,12 @@ router.post('/register', createUserValidator, validate, async (req, res) => {
     const newUser = new User(data);
     const savedUser = await newUser.save();
 
-    const acessToken = creatToken(savedUser._id,aceesTokenAge);
-    res.cookie('acessToken', acessToken, {
+    const accessToken = creatToken(savedUser._id,aceesTokenAge);
+    res.cookie('accessToken', accessToken, {
       httpOnly: true,
       maxAge: aceesTokenAge * 1000,
+      sameSite: 'lax',
+      secure: false 
     });
     const refreshToken = jwt.sign({id:savedUser._id},process.env.REFRESH_TOKEN_KEY_SECRET,{
       expiresIn: refreshTokenTokenAge
@@ -33,6 +35,8 @@ router.post('/register', createUserValidator, validate, async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       maxAge: refreshTokenTokenAge * 1000,
+      sameSite: 'lax',
+      secure: false 
     });
     return res.status(201).send(savedUser);
   } catch (err) {
@@ -54,10 +58,11 @@ router.post('/login', authUserValidator, validate, async (req, res) => {
   try {
     const user = await User.login(email, password);
 
-    const acessToken = creatToken(user._id,aceesTokenAge);
-    res.cookie('acessToken', acessToken, {
+    const accessToken = creatToken(user._id,aceesTokenAge);
+    res.cookie('accessToken', accessToken, {
       httpOnly: true,
       maxAge: aceesTokenAge * 1000,
+      sameSite: 'lax'
     });
     const refreshToken = jwt.sign({id:user._id},process.env.REFRESH_TOKEN_KEY_SECRET,{
       expiresIn: refreshTokenTokenAge
@@ -65,6 +70,7 @@ router.post('/login', authUserValidator, validate, async (req, res) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       maxAge: refreshTokenTokenAge * 1000,
+      sameSite: 'lax'
     });
 
     return res.status(200).send({ user });
@@ -93,28 +99,29 @@ router.post('/refresh-token', async (req, res) => {
     );
 
     const user = await User.findById(decoded.id);
-    if (!user)
-      return res.status(403).send('Invalid refresh token');
+    if (!user) return res.status(403).send('Invalid refresh token');
 
-    const newAccessToken = creatToken(user._id,aceesTokenAge);
+    const newAccessToken = creatToken(user._id, aceesTokenAge);
 
-    res.cookie('acessToken', newAccessToken, {
+    res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
-      maxAge: aceesTokenAge * 1000
+      maxAge: aceesTokenAge * 1000,
+      sameSite: 'lax'
     });
 
     res.status(200).send({ message: 'Token refreshed' });
-  } catch (err) {
-    return res.status(403).send('Refresh token expired or invalid');
+  } catch {
+    res.status(403).send('Refresh token expired or invalid');
   }
 });
 
 
 // Check token
 router.get('/check',(req,res)=>{
-  const token=req.cookies.acessToken;
+  const token=req.cookies.accessToken;
 
-  if(!token)return res.status(200).send({auth:false})
+  if (!token) return res.status(401).send({ auth: false });
+
 
   jwt.verify(token, process.env.TOKEN_KEY_SECRET, (err,decodedToken)=>{
     if(err)return res.status(200).send({auth:false})
@@ -154,7 +161,8 @@ router.get('/isEditor/:id',requireAuth,async(req,res)=>{
 //     LOGOUT
 
 router.get('/logout', (req, res) => {
-  res.clearCookie('jwt');
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
   return res.status(200).send('You have been logged out successfully');
 });
 
