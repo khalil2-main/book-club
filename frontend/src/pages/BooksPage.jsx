@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import PageNav from '../components/pageNav';
 
-import api from '../api/api'
+import api from '../api/axiosInterceptor'
 import Header from '../components/Header';
 import BooksGrid from '../components/BooksGrid';
 import { useNavigate, useSearchParams } from 'react-router-dom';

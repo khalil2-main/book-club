@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {  useParams } from 'react-router-dom';
-import api from '../api/api'
+import api from '../api/axiosInterceptor'
 import noImage from "../assets/images/no-picture.png";
 import BookCard from './BookCard';
 

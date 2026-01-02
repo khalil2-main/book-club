@@ -1,7 +1,7 @@
 import BookCarousel from "../components/BookCarousel";
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
-import api from "../api/api";
+import api from "../api/axiosInterceptor";
 
 function HomePage() {
   const [books, setBooks] = useState([]);

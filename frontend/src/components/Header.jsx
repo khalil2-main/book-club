@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 import noImage from "../assets/images/no-picture.png";
-import api from "../api/api";
+import api from "../api/axiosInterceptor";
 import { Search } from "lucide-react";
 
 const Header = () => {

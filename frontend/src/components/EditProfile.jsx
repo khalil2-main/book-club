@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../api/api";
+import api from "../api/axiosInterceptor";
 import toast from "react-hot-toast";
 
 import SideImage from "./sideimage";

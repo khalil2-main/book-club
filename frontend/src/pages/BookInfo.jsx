@@ -1,4 +1,4 @@
-import api from "../api/api";
+import api from "../api/axiosInterceptor";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
