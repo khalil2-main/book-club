@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import AdminUsers from "./pages/AdminUsers";
 import Dashboard from "./pages/Dashboard";
 import HomePage from "./pages/HomePage";
-import RecentBooks from "./pages/RecentBooks";
+
 import AddBook from "./pages/AddBook";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -55,7 +55,7 @@ const App = () => {
         <Route path="dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}></Route>
         <Route path="admin" element={<AdminRoute><AdminUsers/></AdminRoute>}></Route>
         {/* books related routes */}
-          <Route path="recentbooks" element={<ProtectedRoute><RecentBooks/></ProtectedRoute>}></Route>
+       
         <Route path='books' element={<BooksPage/>}></Route>
         <Route path='books/:id' element={<BookInfo/>}></Route>
        <Route path="books/add" element={<ProtectedRoute> <AddBook/> </ProtectedRoute>}></Route>
