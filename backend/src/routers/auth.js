@@ -112,7 +112,7 @@ router.post('/refresh-token', async (req, res) => {
 
 // Check token
 router.get('/check',(req,res)=>{
-  const token=req.cookies.jwt;
+  const token=req.cookies.acessToken;
 
   if(!token)return res.status(200).send({auth:false})
 
