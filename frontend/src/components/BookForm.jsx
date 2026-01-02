@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/api";
 import noImage from "../assets/images/add.png";
 import Input from "../components/Input";
 import { useNavigate } from "react-router-dom";
@@ -54,7 +54,7 @@ export default function BookForm({ bookId }) {
 
     const fetchBook = async () => {
       try {
-        const res = await axios.get(`/api/book/${bookId}`, { withCredentials: true });
+        const res = await api.get(`/book/${bookId}`);
         const fetchedBook = res.data.book;
         setBook(fetchedBook);
 
@@ -151,7 +151,7 @@ export default function BookForm({ bookId }) {
       let res;
       if(book) {
         console.log(formData)
-         res=await axios.patch(`/api/book/${bookId}`,formData, { withCredentials: true,
+         res=await api.patch(`/book/${bookId}`,formData, {
           headers: { "Content-Type": "multipart/form-data" }
 
          });
@@ -160,7 +160,7 @@ export default function BookForm({ bookId }) {
          
       }
       else {
-       res= await axios.post("/api/book/", formData, { withCredentials: true,
+       res= await api.post("/book/", formData, { 
           headers: { "Content-Type": "multipart/form-data" }
       }
       );

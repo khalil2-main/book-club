@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 import noImage from "../assets/images/no-picture.png";
-import axios from "axios";
+import api from "../api/api";
 import { Search } from "lucide-react";
 
 const Header = () => {
@@ -34,7 +34,7 @@ const Header = () => {
 
   debounceRef.current = setTimeout(async () => {
     try {
-      const res = await axios.get("/api/book", {
+      const res = await api.get("/book", {
         params: {
           title: search,
           page: 1

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import PageNav from '../components/pageNav';
 
-import axios from 'axios';
+import api from '../api/api'
 import Header from '../components/Header';
 import BooksGrid from '../components/BooksGrid';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -24,7 +24,7 @@ export default function BooksPage() {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await axios.get(`/api/book`,{
+        const res = await api.get(`/book`,{
            params: {
           page,
           author,
@@ -43,7 +43,7 @@ export default function BooksPage() {
 
   useEffect(() => {
     try {
-      axios.get('/api/book/npage',{
+      api.get('/book/npage',{
         params: {
           page,
           author,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api";
 import toast from "react-hot-toast";
 
 import SideImage from "./sideimage";
@@ -38,9 +38,7 @@ const EditProfile = ({ mode }) => {
           if (!user) return;
           target = user;
         } else {
-          const res = await axios.get(`/api/user/${id}`, {
-            withCredentials: true,
-          });
+          const res = await api.get(`/user/${id}`);
           target = res.data.user;
         }
 
@@ -140,11 +138,9 @@ const EditProfile = ({ mode }) => {
 
     try {
       const endpoint =
-        mode === "self" ? "/api/user/me" : `/api/user/${id}`;
+        mode === "self" ? "/user/me" : `/user/${id}`;
 
-      const res = await axios.patch(endpoint, fd, {
-        withCredentials: true,
-      });
+      const res = await api.patch(endpoint, fd,);
 
       if (mode === "self") {
         setUser((prev) => ({ ...prev, ...res.data.updateUser }));

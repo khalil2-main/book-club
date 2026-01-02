@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,7 +12,7 @@ const LogInForm = () => {
    
 
     try {
-      await axios.post("/api/login", form);
+      await api.post("/login", form);
       console.log("Sent:", form);
       await checkAuth()
       navigate("/");

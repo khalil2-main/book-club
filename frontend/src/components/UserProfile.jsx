@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {  useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/api'
 import noImage from "../assets/images/no-picture.png";
 import BookCard from './BookCard';
 
@@ -12,11 +12,11 @@ export default function UserProfile({ mode }) {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingBooks, setLoadingBooks] = useState(true);
   //determine user fetch  endpoint
-  const userEndpoint = mode === 'self' ? '/api/user/me' : `/api/user/${id}`;
+  const userEndpoint = mode === 'self' ? '/user/me' : `/user/${id}`;
 
   useEffect(() => {
     setLoadingUser(true);
-    axios.get(userEndpoint)
+    api.get(userEndpoint)
       .then(res => {
         setUser(res.data.user);
         setLoadingUser(false);
@@ -32,11 +32,11 @@ export default function UserProfile({ mode }) {
     setLoadingBooks(true);
 
     let booksEndpoint = '';
-    if (activeTab === 'favorites') booksEndpoint = `/api/user/books/favorites/${user._id}`;
-    else if (activeTab === 'currentlyReading') booksEndpoint = `/api/user/books/currentlyReading/${user._id}`;
-    else if (activeTab === 'created') booksEndpoint = `/api/user/CreatedBooks/${user._id}`;
+    if (activeTab === 'favorites') booksEndpoint = `/user/books/favorites/${user._id}`;
+    else if (activeTab === 'currentlyReading') booksEndpoint = `/user/books/currentlyReading/${user._id}`;
+    else if (activeTab === 'created') booksEndpoint = `/user/CreatedBooks/${user._id}`;
 
-    axios.get(booksEndpoint)
+    api.get(booksEndpoint)
       .then(res => {
         if (activeTab === 'favorites') setBooks(res.data.favoriteBooks || []);
         else if (activeTab === 'currentlyReading') setBooks(res.data.readingBooks || []);

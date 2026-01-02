@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -131,7 +131,7 @@ const SignUpForm = () => {
   // ---------------- SEND DATA ----------------
   const creatUser = async () => {
     try {
-      await axios.post("/api/register", form);
+      await api.post("/register", form);
       console.log("Sent:", form);
       await checkAuth();
       navigate("/");

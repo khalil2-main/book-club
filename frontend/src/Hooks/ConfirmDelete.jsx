@@ -1,6 +1,6 @@
 
 import toast from "react-hot-toast";
-import axios from "axios";
+import api from "../api/api";
 
 const useConfirmDelete = () => {
   const confirmDelete = ({ endpoint, onSuccess,onStart, onFinally }) => {
@@ -19,9 +19,7 @@ const useConfirmDelete = () => {
                 toast.dismiss(t.id);
                 try {
                   
-                  await axios.delete(endpoint , {
-                    withCredentials: true,
-                  });
+                  await api.delete(endpoint);
                   onSuccess?.();
                   toast.success("Deleted successfully");
                 } catch {

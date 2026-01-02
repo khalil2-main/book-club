@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api', // 👈 important
+  baseURL: '/api', // adding the /api route atomatically
   withCredentials: true // cookies
 });
 

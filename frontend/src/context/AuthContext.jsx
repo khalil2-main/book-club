@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../api/api";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
@@ -11,16 +11,16 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const resCheck = await axios.get("/api/check", { withCredentials: true });
+      const resCheck = await api.get("/check");
 
       setAuth(resCheck.data.auth);
 
       if (resCheck.data.auth) {
-        const resAdmin = await axios.get("/api/isAdmin", { withCredentials: true });
+        const resAdmin = await api.get("/isAdmin", );
         setAdmin(resAdmin.data.admin);
         
 
-         const resUser = await axios.get("/api/user/me", { withCredentials: true });
+         const resUser = await api.get("/user/me", );
         setUser(resUser.data.user);
       } else {
         setAdmin(false);
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await axios.get("/api/logout", { withCredentials: true });
+    await api.get("/logout", );
     setAuth(false);
     setAdmin(false);
   };

@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../api/api";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
@@ -53,14 +53,14 @@ export default function BookInfo() {
 
   /* ---------- Check editor ---------- */
   const checkEditor = async (id) => {
-    const res = await axios.get(`/api/isEditor/${id}`);
+    const res = await api.get(`isEditor/${id}`);
     setEditor(res.data.editor);
   };
 
   /* ---------- Fetch user book status ---------- */
   const fetchUserBookStatus = async () => {
     try {
-      const res = await axios.get(`/api/user/book-status/${id}`);
+      const res = await api.get(`/user/book-status/${id}`);
       setIsFavorite(res.data.favorite);
       setIsReading(res.data.currentlyReading);
     } catch {
@@ -74,7 +74,7 @@ export default function BookInfo() {
 
     const getBook = async () => {
       try {
-        const res = await axios.get(`/api/book/${id}`, {
+        const res = await api.get(`/book/${id}`, {
           signal: ac.signal,
         });
 
@@ -86,7 +86,7 @@ export default function BookInfo() {
         await checkEditor(res.data.book.createdBy);
         await fetchUserBookStatus();
       } catch (err) {
-        if (!axios.isCancel(err)) {
+        if (!api.isCancel(err)) {
           setBook(PLACEHOLDER_BOOK);
         }
       } finally {
@@ -101,7 +101,7 @@ export default function BookInfo() {
   /* ---------- Toggle favorite ---------- */
   const toggleFavorite = async () => {
     try {
-      await axios.patch(`/api/user/addFav/${id}`);
+      await api.patch(`/user/addFav/${id}`);
       setIsFavorite((prev) => !prev);
       toast.success(
         !isFavorite ? "Added to favorites ❤️" : "Removed from favorites 💔"
@@ -114,7 +114,7 @@ export default function BookInfo() {
   /* ---------- Toggle reading ---------- */
   const toggleReading = async () => {
     try {
-      await axios.patch(`/api/user/addtoreading/${id}`);
+      await api.patch(`/user/addtoreading/${id}`);
       setIsReading((prev) => !prev);
       toast.success(
         !isReading ? "Marked as reading 📖" : "Reading stopped"
@@ -129,7 +129,7 @@ export default function BookInfo() {
     
     confirmDelete({
       onStart: () => setDeleting(true),
-      endpoint:`/api/book/${id}`,
+      endpoint:`/book/${id}`,
       onSuccess: ()=>{navigate('/books')},
      onFinally: () => setDeleting(false)
     })

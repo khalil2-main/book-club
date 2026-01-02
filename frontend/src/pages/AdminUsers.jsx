@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import Header from "../components/Header";
 
 import { useNavigate } from "react-router-dom";
@@ -24,9 +24,9 @@ const AdminUsers = () => {
   const fetchUsers = async (params = {}) => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/user", {
+      const res = await api.get("/user", {
         params,
-        withCredentials: true,
+        
       });
       setUsers(res.data);
       setError("");
@@ -66,7 +66,7 @@ const AdminUsers = () => {
 const handleDelete = (id) => {
   confirmDelete({
     onStart:()=>setDeleting(true),
-    endpoint:`/api/user/${id}`,
+    endpoint:`/user/${id}`,
     onSuccess:() => setUsers((prev) => prev.filter((u) => u._id !== id)),
     onFinally:()=>setDeleting(false)
   })
