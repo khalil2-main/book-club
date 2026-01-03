@@ -1,7 +1,8 @@
 const { Router}= require('express')
 const Book = require('./../models/bookModel')
 const {validationResult, matchedData,}=require('express-validator');
-const {bookCreationValidator,bookUpdateValidator, isParamValidator, pageValidator, normalizeGenres} =require ('../validators/books-validator-schema')
+const {bookCreationValidator,bookUpdateValidator, 
+  isParamValidator, pageValidator, normalizeGenres, reviewValidator} =require ('../validators/books-validator-schema')
 const creatUploader= require('../middlewares/upload')
 const validate= require('../middlewares/validate')
 const router=Router();
@@ -9,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { requireAuth , adminOrEditorAuth} = require('../middlewares/auth');
 const upload=creatUploader('books');
+const {recalculateRating}= require('../utils/helpers')
 
 //number of books per page
 const limit = 20;
@@ -173,10 +175,46 @@ router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,adminOrE
       res.status(200).json({ message: "Book updated successfully", book: updatedBook });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "BAD REQUEST" , details: err});
+      res.status(500).json({ error: "Server error" , details: err});
     }
   }
 );
+
+// add or edit a review
+router.put('/review/:id',isParamValidator, reviewValidator,requireAuth, validate, async(req,res)=>{
+  try{ const {id}= req.params;
+   const userId= req.userId;
+   const {Comment,rating}= req.query
+
+  const book= await Book.findById(id);
+  if(!book) return res.status(404).send({messge: 'book is not found'})
+  
+  // check if there an existing review
+ const bookReview= book.reviews.find(r=> r.userId.toString() ===userId.toString());
+
+ if(bookReview){
+  if(rating!==undefined)bookReview.rating=rating
+  if(Comment!==undefined)bookReview.Comment=Comment
+ }
+ else{
+  book.reviews.push({
+    userId,
+    rating,
+    Comment
+  })
+  }
+  recalculateRating(book)
+  await book.save();
+  return res.status(200).send({reviews:book.reviews})
+
+  }catch(err){
+    console.log(err)
+   res.status(500).json({ error: "Server error"});
+  }
+})
+
+
+
 //delete a book
 router.delete('/:id',isParamValidator,requireAuth , adminOrEditorAuth , async (req, res) => {
   const {id}= req.params
