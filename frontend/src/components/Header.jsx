@@ -57,10 +57,10 @@ const Header = () => {
     navigate(`/books?title=${encodeURIComponent(search)}`);
   };
 
-  const handleResultClick = (title) => {
+  const handleResultClick = (id) => {
     setSearch("");
     setShowResults(false);
-    navigate(`/books?title=${encodeURIComponent(title)}`);
+    navigate(`/books/${id}`);
   };
 
 
@@ -102,7 +102,7 @@ const Header = () => {
   if (e.key === "Enter") {
     e.preventDefault();
     if (activeIndex >= 0 && activeIndex < results.length) {
-      handleResultClick(results[activeIndex].title);
+      handleResultClick(results[activeIndex]._id);
     } else if (search.trim()) {
       handleSearchNavigate();
     }
@@ -159,7 +159,7 @@ const Header = () => {
     {results.map((book, index) => (
       <div
         key={book._id}
-        onClick={() => handleResultClick(book.title)}
+        onClick={() => handleResultClick(book._id)}
         className={`px-4 py-2 cursor-pointer text-sm ${
           index === activeIndex ? "bg-indigo-100 text-indigo-900" : "text-gray-700"
         }`}
