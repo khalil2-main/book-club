@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt= require('jsonwebtoken')
+const Book = require('../models/bookModel')
+
+
 const saltRound=10;
 
 const hashPassword= (password)=>{
@@ -18,4 +21,28 @@ const creatToken=(id,maxAge)=>{
     expiresIn:maxAge
   })
 }
-module.exports={hashPassword, comparePassword, creatToken}
+
+
+
+// calculate book rating
+const recalculateRating = (book) => {
+  const ratedReviews = book.reviews.filter(r => r.rating > 0);
+
+  const ratingCount = ratedReviews.length;
+
+  if (ratingCount === 0) {
+    book.ratingCount = 0;
+    book.averageRating = 0;
+    return;
+  }
+
+  const ratingTotal = ratedReviews.reduce(
+    (total, r) => total + r.rating,
+    0
+  );
+
+  book.ratingCount = ratingCount;
+  book.averageRating = Number((ratingTotal / ratingCount).toFixed(1));
+};
+
+module.exports={hashPassword, comparePassword, creatToken, recalculateRating}
