@@ -99,7 +99,17 @@ const normalizeGenres = (req, res, next) => {
   }
   next();
 };
+  const reviewValidator=[
+    query('rating').optional()
+    .isFloat({min:0, max:5}).withMessage('rating must be a number between 0 and 5'),
+   
+    query('Comment').optional()
+    .trim()
+    .isString().withMessage('comment must be a string')
+    .isLength({max:500})
+  ]
 
-module.exports = { bookCreationValidator, bookUpdateValidator,isParamValidator, pageValidator ,normalizeGenres};
+module.exports = { bookCreationValidator, bookUpdateValidator
+  ,isParamValidator, pageValidator ,normalizeGenres, reviewValidator};
 
 
