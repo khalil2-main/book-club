@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 //review schema
-const reviewScheam= new mongoose.Schema({
+const reviewSchema= new mongoose.Schema({
   userId:{
     type: mongoose.Types.ObjectId,
     ref:'users',
@@ -11,7 +11,7 @@ const reviewScheam= new mongoose.Schema({
     type: Number, 
     min: [0, "Rating cannot be lower than 0"],
     max: [5, "Rating cannot be higher than 5"],
-    default:0
+
   },
   Comment:{
     type:String,
@@ -83,23 +83,31 @@ const bookSchema = new mongoose.Schema({
   
 
 
-  rating: { 
-    type: Number, 
-    min: [0, "Rating cannot be lower than 0"],
-    max: [5, "Rating cannot be higher than 5"],
-    default:0
-  },
-  reviews:{
-    type: [reviewScheam]
+    reviews: {
+  type: [reviewSchema],
+  validate: {
+    validator: function (reviews) {
+      const ids = reviews.map(r => r.userId.toString());
+      return ids.length === new Set(ids).size;
+    },
+    message: 'User can only review once'
+  }
+},
+
+
+  averageRating: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: 0
   },
 
-  status: {
-    type: String,
-    enum: {
-      values: ['reading', 'completed', 'want-to-read'],
-      message: "Status must be 'reading', 'completed', or 'want-to-read'"
-    }
+  ratingCount: {
+    type: Number,
+    default: 0
   },
+
+  
   createdBy:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
