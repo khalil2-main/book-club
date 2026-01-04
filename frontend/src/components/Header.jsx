@@ -134,6 +134,14 @@ const Header = () => {
     >
       Books
     </button>
+    {auth&& (
+      <button
+      onClick={() => {navigate("/books/recommendations"); setSearch('')}}
+      className="text-white font-semibold hover:underline transition"
+    >
+      recommendate for you
+    </button>
+    )}
   </div>
   {/* Search bar */}
     <div ref={searchRef} className="relative w-80">
