@@ -1,18 +1,17 @@
-import api from "../api/axiosInterceptor";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import api from "../api/axiosInterceptor";
 import noImage from "../assets/images/default_book_cover.jpg";
 import { useAuth } from "../context/AuthContext";
-import { Stars } from "../components/Stars";
 import useConfirmDelete from "../Hooks/ConfirmDelete";
+import { Stars } from "../components/Stars";
+import Review from "../components/Review";
 
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
   <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 py-2">
-    <div className="w-full sm:w-40 text-sm text-indigo-600 font-medium">
-      {label}
-    </div>
+    <div className="w-full sm:w-40 text-sm text-indigo-600 font-medium">{label}</div>
     <div className="text-gray-700 text-sm">{children}</div>
   </div>
 );
@@ -28,33 +27,37 @@ const PLACEHOLDER_BOOK = {
   isbn: "—",
   publishedYear: "—",
   coverImageUrl: noImage,
-  rating: 0,
+  averageRating: 0,
+  reviews: [],
+ 
   status: "want-to-read",
   dateAdded: null,
 };
 
-
-/* ---------- Main component ---------- */
 export default function BookInfo() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { auth,admin} = useAuth();
-
+  const { auth, admin } = useAuth();
+  const[myReview, setMyReview]=useState(null)
   const [book, setBook] = useState(null);
   const [preview, setPreview] = useState(noImage);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [editor, setEditor] = useState(false);
-  const confirmDelete= useConfirmDelete()
+  const confirmDelete = useConfirmDelete();
 
   // user book states
   const [isFavorite, setIsFavorite] = useState(false);
   const [isReading, setIsReading] = useState(false);
 
-  /* ---------- Check editor ---------- */
-  const checkEditor = async (id) => {
-    const res = await api.get(`isEditor/${id}`);
-    setEditor(res.data.editor);
+  /* ---------- Fetch editor status ---------- */
+  const checkEditor = async (creatorId) => {
+    try {
+      const res = await api.get(`/isEditor/${creatorId}`);
+      setEditor(res.data.editor);
+    } catch {
+      console.log('in vister mode')
+    }
   };
 
   /* ---------- Fetch user book status ---------- */
@@ -64,38 +67,31 @@ export default function BookInfo() {
       setIsFavorite(res.data.favorite);
       setIsReading(res.data.currentlyReading);
     } catch {
-      // book not in user's list yet
+      console.log('in vister mode')
     }
   };
 
   /* ---------- Fetch book ---------- */
+  const fetchBook = async () => {
+    try {
+      const res = await api.get(`/book/${id}`);
+      const b = res.data.book || PLACEHOLDER_BOOK;
+      const mr=res.data.myReview
+      setBook(b);
+      if (b.coverImageUrl) setPreview(b.coverImageUrl);
+      setMyReview(mr)
+      await checkEditor(b.createdBy);
+      await fetchUserBookStatus();
+    } catch {
+      setBook(PLACEHOLDER_BOOK);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const ac = new AbortController();
-
-    const getBook = async () => {
-      try {
-        const res = await api.get(`/book/${id}`, {
-          signal: ac.signal,
-        });
-
-        setBook(res.data.book || PLACEHOLDER_BOOK);
-        if (res.data.book?.coverImageUrl) {
-          setPreview(res.data.book.coverImageUrl);
-        }
-
-        await checkEditor(res.data.book.createdBy);
-        await fetchUserBookStatus();
-      } catch (err) {
-        if (!api.isCancel(err)) {
-          setBook(PLACEHOLDER_BOOK);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getBook();
-    return () => ac.abort();
+    fetchBook();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   /* ---------- Toggle favorite ---------- */
@@ -103,9 +99,7 @@ export default function BookInfo() {
     try {
       await api.patch(`/user/addFav/${id}`);
       setIsFavorite((prev) => !prev);
-      toast.success(
-        !isFavorite ? "Added to favorites ❤️" : "Removed from favorites 💔"
-      );
+      toast.success(!isFavorite ? "Added to favorites ❤️" : "Removed from favorites 💔");
     } catch {
       toast.error("Failed to update favorite");
     }
@@ -116,9 +110,7 @@ export default function BookInfo() {
     try {
       await api.patch(`/user/addtoreading/${id}`);
       setIsReading((prev) => !prev);
-      toast.success(
-        !isReading ? "Marked as reading 📖" : "Reading stopped"
-      );
+      toast.success(!isReading ? "Marked as reading 📖" : "Reading stopped");
     } catch {
       toast.error("Failed to update reading status");
     }
@@ -126,22 +118,18 @@ export default function BookInfo() {
 
   /* ---------- Delete book ---------- */
   const handleDelete = async () => {
-    
     confirmDelete({
       onStart: () => setDeleting(true),
-      endpoint:`/book/${id}`,
-      onSuccess: ()=>{navigate('/books')},
-     onFinally: () => setDeleting(false)
-    })
-   
+      endpoint: `/book/${id}`,
+      onSuccess: () => navigate("/books"),
+      onFinally: () => setDeleting(false),
+    });
   };
 
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-violet-600 animate-pulse">
-          Loading book details...
-        </div>
+        <div className="text-violet-600 animate-pulse">Loading book details...</div>
       </div>
     );
   }
@@ -155,14 +143,13 @@ export default function BookInfo() {
     summary,
     isbn,
     publishedYear,
-    rating,
-   
+    averageRating,
     dateAdded,
+    reviews,
+  
   } = book || PLACEHOLDER_BOOK;
 
-  const formattedDate = dateAdded
-    ? new Date(dateAdded).toLocaleDateString("en-US")
-    : "—";
+  const formattedDate = dateAdded ? new Date(dateAdded).toLocaleDateString("en-US") : "—";
 
   return (
     <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
@@ -178,8 +165,7 @@ export default function BookInfo() {
             </button>
             <div>
               <h1 className="text-2xl font-bold text-violet-600">{title}</h1>
-              <p className="text-sm text-gray-500"
-              >by {author}</p>
+              <p className="text-sm text-gray-500">by {author}</p>
             </div>
           </div>
 
@@ -205,10 +191,8 @@ export default function BookInfo() {
         {/* Card */}
         <div className="bg-white rounded-2xl shadow p-6 md:p-8">
           <div className="grid md:grid-cols-3 gap-6">
-          
             {/* Cover */}
             <div className="flex flex-col items-center">
-              {/* Image */}
               <div className="w-56 h-80 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                 <img
                   src={preview}
@@ -217,81 +201,100 @@ export default function BookInfo() {
                 />
               </div>
 
-              {/* ACTION BUTTONS (same row) */}
-              {auth&& (<div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-xs">
-                <button
-                  onClick={toggleFavorite}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition
-                    ${isFavorite
-                      ? "bg-pink-100 text-pink-600 border-pink-200"
-                      : "bg-white text-gray-700 hover:bg-gray-50"}
-                  `}
-                >
-                  {isFavorite ? "★ Favorited" : "☆ Favorite"}
-                </button>
+              {auth && (
+                <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-xs">
+                  <button
+                    onClick={toggleFavorite}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium border transition
+                      ${
+                        isFavorite
+                          ? "bg-pink-100 text-pink-600 border-pink-200"
+                          : "bg-white text-gray-700 hover:bg-gray-50"
+                      }`}
+                  >
+                    {isFavorite ? "★ Favorited" : "☆ Favorite"}
+                  </button>
 
-                <button
-                  onClick={toggleReading}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition
-                    ${isReading
-                      ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                      : "bg-white text-gray-700 hover:bg-gray-50"}
-                  `}
-                >
-                  {isReading ? "📖 Reading" : "▶ Read"}
-                </button>
-              </div>)}
+                  <button
+                    onClick={toggleReading}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium border transition
+                      ${
+                        isReading
+                          ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                          : "bg-white text-gray-700 hover:bg-gray-50"
+                      }`}
+                  >
+                    {isReading ? "📖 Reading" : "▶ Read"}
+                  </button>
+                </div>
+              )}
 
-              {/* Date */}
-              <div className="mt-3 text-xs text-gray-500">
-                Added on: {formattedDate}
-              </div>
+              <div className="mt-3 text-xs text-gray-500">Added on: {formattedDate}</div>
             </div>
-
 
             {/* Details */}
             <div className="md:col-span-2">
-              <Stars value={rating ?? 0} />
+              <Stars value={averageRating ?? 0} />
 
               <div className="border-t border-b py-4 my-4">
-                <InfoRow label="Author"><span
-              className="author-name cursor-pointer  hover:underline hover:text-blue-800"
-
-              onClick={() => navigate(`/books?author=${encodeURIComponent(author)}`)}
-            >
-              {author}
-            </span>
-            </InfoRow>
-                <InfoRow label="Language">{language}</InfoRow>
-                <InfoRow label="Pages">
-                  {pageNumbers ? `${pageNumbers} pages` : "—"}
+                <InfoRow label="Author">
+                  <span
+                    className="author-name cursor-pointer hover:underline hover:text-blue-800"
+                    onClick={() =>
+                      navigate(`/books?author=${encodeURIComponent(author)}`)
+                    }
+                  >
+                    {author}
+                  </span>
                 </InfoRow>
+                <InfoRow label="Language">{language}</InfoRow>
+                <InfoRow label="Pages">{pageNumbers ? `${pageNumbers} pages` : "—"}</InfoRow>
                 <InfoRow label="Year">{publishedYear}</InfoRow>
                 <InfoRow label="ISBN">{isbn}</InfoRow>
                 <InfoRow label="Genres">
                   <div className="flex flex-wrap gap-2">
                     {genres.map((g, i) => (
-                     <span
-                    key={i}
-                    className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full cursor-pointer hover:bg-indigo-100"
-                    onClick={() => navigate(`/books?genre=${encodeURIComponent(g)}`)}
-                  >
-                    {g}
-                  </span>
-
+                      <span
+                        key={i}
+                        className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full cursor-pointer hover:bg-indigo-100"
+                        onClick={() =>
+                          navigate(`/books?genre=${encodeURIComponent(g)}`)
+                        }
+                      >
+                        {g}
+                      </span>
                     ))}
                   </div>
                 </InfoRow>
               </div>
 
-              <h3 className="text-sm text-violet-600 font-medium mb-2">
-                Summary
-              </h3>
+              <h3 className="text-sm text-violet-600 font-medium mb-2">Summary</h3>
               <p className="text-sm text-gray-700 leading-relaxed">
                 {summary || "No summary available."}
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-8 space-y-4">
+          <h2 className="text-lg font-semibold text-violet-600 mb-4">Reviews</h2>
+
+          {/* Current user's review */}
+          {auth && (
+            <Review
+              review={myReview}
+              bookId={id}
+              mode="self"
+              onUpdate={fetchBook}
+            />
+          )}
+
+          {/* Other users' reviews */}
+          {reviews.length === 0 && <p className="text-gray-500">No reviews yet.</p>}
+          {reviews.map((r) => (
+            <Review key={r._id} review={r} bookId={id} mode="other" />
+          ))}
         </div>
       </div>
     </div>
