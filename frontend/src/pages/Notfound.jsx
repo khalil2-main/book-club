@@ -8,6 +8,7 @@ function NotFound() {
 
   return (
     <>
+    <title>404</title>
       <Header />
 
       <main className="min-h-screen bg-blue-50 flex items-center justify-center py-12">

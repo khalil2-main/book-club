@@ -21,6 +21,7 @@ function HomePage() {
 
   return (
     <>
+      <title>Book club</title>
       <Header />
       <BookCarousel books={books} />
     </>

@@ -37,6 +37,7 @@ export default function RecommendationsPage() {
 
   return (
     <>
+      <title>recommendations</title>
       <Header />
 
       <div className="max-w-6xl mx-auto px-4">

@@ -95,6 +95,11 @@ export default function BookForm({ bookId }) {
 
     fetchBook();
   }, [bookId]);
+useEffect(() => {
+  if (book?.title) {
+    document.title = `${book.title} | Edit`;
+  }
+}, [book]);
 
   // Validation
   const validateField = (name, value) => {

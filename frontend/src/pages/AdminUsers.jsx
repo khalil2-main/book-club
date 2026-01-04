@@ -88,6 +88,7 @@ const handleDelete = (id) => {
 
   return (
     <>
+    <title>admin page</title>
       <Header />
 
       <main className="min-h-screen bg-blue-50 py-8">

@@ -78,6 +78,8 @@ export default function BookInfo() {
       const b = res.data.book || PLACEHOLDER_BOOK;
       const mr=res.data.myReview
       setBook(b);
+      
+
       if (b.coverImageUrl) setPreview(b.coverImageUrl);
       setMyReview(mr)
       await checkEditor(b.createdBy);
@@ -93,6 +95,12 @@ export default function BookInfo() {
     fetchBook();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+  useEffect(() => {
+    if (book?.title) {
+      document.title = `Books | ${book.title}`;
+    }
+  }, [book]);
+
 
   /* ---------- Toggle favorite ---------- */
   const toggleFavorite = async () => {
@@ -152,6 +160,8 @@ export default function BookInfo() {
   const formattedDate = dateAdded ? new Date(dateAdded).toLocaleDateString("en-US") : "—";
 
   return (
+    <>
+    
     <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -298,5 +308,6 @@ export default function BookInfo() {
         </div>
       </div>
     </div>
+    </>
   );
 }

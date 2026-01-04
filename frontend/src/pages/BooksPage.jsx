@@ -60,6 +60,7 @@ export default function BooksPage() {
 
   return (
     <>
+    <title>books</title>
       <Header />
       {/* Centered container */}
       <div className="max-w-6xl mx-auto px-4">
