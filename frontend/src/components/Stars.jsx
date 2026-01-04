@@ -1,21 +1,24 @@
+import React from "react";
 
-export /* ---------- Star rating ---------- */
-const Stars = ({ value = 0 }) => {
-  const full = Math.floor(value);
+export const Stars = ({ value = 0 }) => {
+  // Step value between 0 and 10
+  const steps = Math.round(value * 2);
+  const percent = steps * 5;
+
+  // Path to the rating image
+  const ratingImage = `/images/ratings/rating-${percent}.png`;
+
   return (
-    <div className="flex items-center space-x-1">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span
-          key={i}
-          className={`text-lg ${
-            i < full ? "text-yellow-500" : "text-gray-300"
-          }`}
-        >
-          ★
-        </span>
-      ))}
+    <div className="flex items-center space-x-2">
+      <img
+        src={ratingImage}
+        alt="stars"
+        className="w-24 h-10 object-contain" // smaller size
+      />
+
+      {/* Numeric display */}
       <span className="text-xs text-gray-500 ml-2">
-        ({value?.toFixed(1) ?? "0.0"})
+        ({value.toFixed(1)})
       </span>
     </div>
   );
