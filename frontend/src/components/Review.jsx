@@ -49,8 +49,8 @@ export default function Review({ review, bookId, mode = "other", onUpdate }) {
         </div>
 
         <div className="mt-1">
-          {!editing ? (
-            <InteractiveStars value={rating} onChange={null} />
+          {!editing? (rating>0)&&(
+             <InteractiveStars value={rating} onChange={null} />
           ) : (
             <InteractiveStars value={rating} onChange={setRating} />
           )}
