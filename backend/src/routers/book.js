@@ -49,7 +49,7 @@ router.get('/',pageValidator, validate, async (req, res) => {
     const skip = (page - 1) * limit;
 
     const books = await Book.find(query)
-      .sort({ rating: 1 })
+      .sort({ title: 1 })
       .skip(skip)
       .limit(limit);
 
