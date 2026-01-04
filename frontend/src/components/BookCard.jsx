@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import noImage from "../assets/images/default_book_cover.jpg";
 
+
 const BookCard = ({ book }) => {
   const image = book.coverImageUrl || noImage;
+
+  const truncate = (text, length = 20) =>
+  text.length > length ? text.slice(0, length) + "…" : text;
+
 
   return (
     <Link
@@ -19,7 +24,10 @@ const BookCard = ({ book }) => {
           }}
         />
       </div>
-      <h4 className="mt-2 font-semibold text-sm">{book.title}</h4>
+      <h4 className="mt-2 font-semibold text-sm" title={book.title}>
+      {truncate(book.title, 40)}
+    </h4>
+
       <p className="text-xs text-gray-500">{book.author}</p>
     </Link>
   );
