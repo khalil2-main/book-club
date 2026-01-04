@@ -17,6 +17,10 @@ const reviewSchema= new mongoose.Schema({
     type:String,
     maxlength:500,
 
+  },
+   commentedAt: {
+    type: Date,
+    default: Date.now
   }
 
 },{_id: false});

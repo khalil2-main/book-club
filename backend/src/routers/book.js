@@ -202,11 +202,14 @@ router.put('/review/:id',isParamValidator, reviewValidator,requireAuth, validate
   if(rating!==undefined)bookReview.rating=rating
   if(Comment!==undefined)bookReview.Comment=Comment
  }
+  
  else{
+  const commentedAt= Date.now()
   book.reviews.push({
     userId,
     rating,
-    Comment
+    Comment,
+    commentedAt
   })
   }
   recalculateRating(book)
