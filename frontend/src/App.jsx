@@ -17,6 +17,7 @@ import EditBookPage from "./pages/EditBookPage";
 import ProfilePage from "./pages/profilePage";
 import EditProfilePage from "./pages/EditProfilePage";
 import BookDetailsPage from "./pages/bookDetailsPage";
+import RecommendationsPage from "./pages/RecommendationsPage";
 
 const App = () => {
   return (
@@ -61,6 +62,7 @@ const App = () => {
         <Route path='books/:id' element={<BookDetailsPage/>}></Route>
        <Route path="books/add" element={<ProtectedRoute> <AddBook/> </ProtectedRoute>}></Route>
        <Route path="books/:id/edit" element={<ProtectedRoute> <EditBookPage/> </ProtectedRoute>}></Route>
+       <Route path="books/recommendations" element={<ProtectedRoute> <RecommendationsPage/> </ProtectedRoute>} ></Route>
 
         <Route path="*" element={<NotFound/>} ></Route>
       </Routes>
