@@ -8,7 +8,7 @@ const validate= require('../middlewares/validate')
 const router=Router();
 const fs = require('fs');
 const path = require('path');
-const { requireAuth , adminOrEditorAuth} = require('../middlewares/auth');
+const { requireAuth , adminOrEditorAuth, requireAuthOptional} = require('../middlewares/auth');
 const upload=creatUploader('books');
 const {recalculateRating}= require('../utils/helpers')
 
@@ -118,19 +118,25 @@ router.post('/',upload.single('image'),requireAuth,normalizeGenres ,bookCreation
       res.status(500).json({ error: "Server error", details: err.message});
     }
 });
+//get book by id
+router.get('/:id',isParamValidator,requireAuthOptional,validate ,async (req, res) => {
+   try{ const {id}= req.params;
+   const userId= req.userId;
 
-router.get('/:id',isParamValidator,validate ,async (req, res) => {
-  const {id}= req.params    
-  try {
-    const book = await Book.findById(id);
-    if (!book) {
-      return res.status(404).json({ error: "Book not found" });
-    }
-    res.status(200).json({ book });
-  }
-    catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error", details: err.message });
+
+  const book= await Book.findById(id)
+  .populate('reviews.userId','firstname lastname profileImage');
+  if(!book) return res.status(404).send({messge: 'book is not found'})
+  
+  if(!userId) return res.status(200).send({book,myReview:null})
+  // check if there an existing review
+ const myReview= book.reviews.find( r => r.userId._id.toString() === userId.toString())||null;
+ const otherReviews = book.reviews.filter( r => !userId || r.userId._id.toString() !== userId.toString());
+   res.status(200).send({book:{ ...book.toObject(), reviews: otherReviews },myReview})
+  
+  }catch(err){
+    console.log(err)
+   res.status(500).json({ error: "Server error"});
   }
 });
 //edit a book
