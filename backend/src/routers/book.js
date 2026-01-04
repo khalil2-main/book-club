@@ -18,7 +18,7 @@ const limit = 20;
 // show the top 15 puppolair book
 router.get('/top', async(req, res) => {
   try{
-    const books= await Book.find().sort({rating:1}).limit(15); 
+    const books= await Book.find().sort({avrageRating:-1}).limit(15); 
     res.status(200).send({books});
   }
   catch(err){
