@@ -56,6 +56,7 @@ router.post('/login', authUserValidator, validate, async (req, res) => {
   const { email, password } = matchedData(req);
 
   try {
+    
     const user = await User.login(email, password);
 
     const accessToken = creatToken(user._id,aceesTokenAge);
@@ -75,14 +76,14 @@ router.post('/login', authUserValidator, validate, async (req, res) => {
 
     return res.status(200).send({ user });
   } catch (err) {
-
+    const errors={}
     if (err.message === 'incorrect Email')
       errors.email = 'The email is not registered';
 
     if (err.message === 'incorrect password')
       errors.password = 'The password is incorrect';
     console.log(err)
-    return res.status(400).send({messge: 'server error' });
+    return res.status(500).send({messge: 'server error' ,errors});
   }
 });
 
