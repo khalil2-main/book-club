@@ -10,26 +10,27 @@ export default function BookForm({ bookId }) {
   const navigate = useNavigate();
 
   const genreOptions = [
-    "Fantasy","High Fantasy","Urban Fantasy","Science Fiction","Cyberpunk","Dystopian",
+    "Fantasy","High Fantasy","Urban Fantasy","Science Fiction","Cyberpunk","Dystopian","Military Fiction",
     "Post-Apocalyptic","Space Opera","Romance","Historical Romance","Contemporary Romance",
     "Thriller","Mystery","Crime","Detective","Psychological Thriller","Horror",
     "Gothic Horror","Paranormal","Adventure","Action","Drama","Literary Fiction",
     "Classics","Young Adult","New Adult","Children's Literature","Fairy Tales",
     "Mythology","Magical Realism","Humor","Satire","Short Stories","Western","War Fiction",
-    "Military Science Fiction","Biography","Autobiography","Memoir","Self-Help",
+    "Military Science Fiction","Biography","Autobiography","Memoir","Self-Help",'Fiction',
     "Personal Development","Philosophy","Psychology","Sociology","Anthropology","History",
     "Military History","World History","Politics","Economics","Business","Finance",
-    "Entrepreneurship","Marketing","Leadership","Education","Parenting","Religion",
+    "Entrepreneurship","Marketing","Leadership","Education","Parenting","Religion","Magic",
     "Spirituality","True Crime","Travel","Cookbooks","Food & Nutrition","Health & Wellness",
-    "Fitness","Art","Photography","Music","Film Studies","Writing","Linguistics",
-    "Poetry","Essays","Journalism","Crafts & DIY","Science","Biology","Ecology",
+    "Fitness","Art","Photography","Music","Film Studies","Writing","Linguistics","Enemy to lovers",
+    "Poetry","Essays","Journalism","Crafts & DIY","Science","Biology","Ecology", "Friends to lovers",
     "Evolution","Chemistry","Physics","Astronomy","Earth Science","Geology","Neuroscience",
     "Mathematics","Statistics","Engineering","Computer Science","Information Technology",
     "Software Engineering","Programming","Web Development","Backend Development",
     "Frontend Development","Mobile Development","Artificial Intelligence","Machine Learning",
     "Data Science","Cybersecurity","Cloud Computing","DevOps","Networking","Databases",
     "Algorithms","Operating Systems","Law","Medicine","Nursing","Public Health",
-    "Architecture","Design"
+    "Architecture","Design",
+    "Children","Young adult", "Adult"
   ].sort();
   const languages = [
   "Abkhaz","Afar","Afrikaans","Akan","Albanian","Amharic","Arabic","Aragonese","Armenian","Assamese","Avaric","Avestan","Aymara","Azerbaijani","Bambara","Bashkir","Basque","Belarusian","Bengali","Bihari","Bislama","Bosnian","Breton","Bulgarian","Burmese","Catalan","Chamorro","Chechen","Chichewa","Chinese",
@@ -203,6 +204,7 @@ export default function BookForm({ bookId }) {
       }}
        className="w-40 h-56 object-cover rounded shadow"
       previewClassName="w-40 h-56 object-cover rounded shadow"
+      previewAlign="left"
       error={errors.image}
     />
   </div>

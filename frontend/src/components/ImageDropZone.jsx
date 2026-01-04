@@ -8,7 +8,8 @@ export default function ImageDropZone({
   error,
   placeholder = "Drag & drop an image here, or click to select",
   className,
-  previewClassName
+  previewClassName,
+  previewAlign
 }) {
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -25,22 +26,32 @@ export default function ImageDropZone({
       multiple: false,
       maxSize: 5 * 1024 * 1024
     });
+    const alignmentClasses = {
+    center: "items-center justify-center",
+    top: "items-start justify-center",
+    bottom: "items-end justify-center",
+    left: "items-center justify-start",
+    right: "items-center justify-end"
+  };
 
+
+  
   return (
     <div className="flex flex-col gap-2">
       <div
         {...getRootProps()}
         className={clsx(
           `
-            cursor-pointer border-2 border-dashed rounded-xl
+            cursor-pointer rounded-xl
             flex items-center justify-center
             transition
-            w-40
+            w-full
             min-h-[120px]
           `,
+          alignmentClasses[previewAlign],
           isDragActive
-            ? "border-indigo-500 bg-indigo-50"
-            : "border-gray-400 bg-white",
+            ? " border-2 border-dashed border-indigo-500 bg-indigo-50 "
+            : "border-0 bg-transparent",
           isDragReject && "border-red-500 bg-red-50",
           className
         )}
