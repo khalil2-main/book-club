@@ -2,7 +2,7 @@ const { Router } = require('express');
 const User = require('../models/userModel');
 const {matchedData, validationResult}= require('express-validator')
 const {createUserValidator,authUserValidator} = require('../validators/UservalidationSchema');
-const { hashPassword, creatToken,} = require('../utils/helpers');
+const { hashPassword, createToken,} = require('../utils/helpers');
 const validate =require('../middlewares/validate')
 const jwt= require('jsonwebtoken');
 const { requireAuth } = require('../middlewares/auth');
@@ -22,7 +22,7 @@ router.post('/register', createUserValidator, validate, async (req, res) => {
     const newUser = new User(data);
     const savedUser = await newUser.save();
 
-    const accessToken = creatToken(savedUser._id,aceesTokenAge);
+    const accessToken = createToken(savedUser._id,aceesTokenAge);
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       maxAge: aceesTokenAge * 1000,
@@ -59,7 +59,7 @@ router.post('/login', authUserValidator, validate, async (req, res) => {
     
     const user = await User.login(email, password);
 
-    const accessToken = creatToken(user._id,aceesTokenAge);
+    const accessToken = createToken(user._id,aceesTokenAge);
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       maxAge: aceesTokenAge * 1000,
@@ -102,7 +102,7 @@ router.post('/refresh-token', async (req, res) => {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(403).send('Invalid refresh token');
 
-    const newAccessToken = creatToken(user._id, aceesTokenAge);
+    const newAccessToken = createToken(user._id, aceesTokenAge);
 
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
