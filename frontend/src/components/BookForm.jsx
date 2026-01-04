@@ -29,6 +29,19 @@ export default function BookForm({ bookId }) {
     "Algorithms","Operating Systems","Law","Medicine","Nursing","Public Health",
     "Architecture","Design"
   ].sort();
+  const languages = [
+  "Abkhaz","Afar","Afrikaans","Akan","Albanian","Amharic","Arabic","Aragonese","Armenian","Assamese","Avaric","Avestan","Aymara","Azerbaijani","Bambara","Bashkir","Basque","Belarusian","Bengali","Bihari","Bislama","Bosnian","Breton","Bulgarian","Burmese","Catalan","Chamorro","Chechen","Chichewa","Chinese",
+
+  "Church Slavic","Chuvash","Cornish","Corsican","Cree","Croatian","Czech","Danish","Divehi","Dutch","Dzongkha","English","Esperanto","Estonian","Ewe","Faroese","Fijian","Finnish","French","Fulah","Galician","Georgian","German","Greek","Guaraní","Gujarati","Haitian","Hausa","Hebrew","Herero",
+
+  "Hindi","Hiri Motu","Hungarian","Icelandic","Ido","Igbo","Indonesian","Interlingua","Interlingue","Inuktitut","Inupiaq","Irish","Italian","Japanese","Javanese","Kalaallisut","Kannada","Kanuri","Kashmiri","Kazakh","Khmer","Kikuyu","Kinyarwanda","Kirghiz","Komi","Korean","Kuanyama","Kurdish","Lao","Latin",
+
+  "Latvian","Limburgish","Lingala","Lithuanian","Luba-Katanga","Luxembourgish","Macedonian","Malagasy","Malay","Malayalam","Maltese","Manx","Maori","Marathi","Marshallese","Mongolian","Nauru","Navajo","Ndonga","Nepali","Northern Sami","Norwegian","Norwegian Bokmål","Norwegian Nynorsk","Occitan","Ojibwa","Oriya","Oromo","Ossetian","Pali",
+
+  "Pashto","Persian","Polish","Portuguese","Punjabi","Quechua","Romanian","Romansh","Russian","Samoan","Sango","Sanskrit","Sardinian","Scottish Gaelic","Serbian","Shona","Sindhi","Sinhala","Slovak","Slovenian","Somali","Southern Sotho","Spanish","Sundanese","Swahili","Swati","Swedish","Tagalog","Tahitian","Tajik",
+
+  "Tamil","Tatar","Telugu","Thai","Tibetan","Tigrinya","Tonga","Tsonga","Tswana","Turkish","Turkmen","Twi","Uighur","Ukrainian","Urdu","Uzbek","Venda","Vietnamese","Volapük","Walloon","Welsh","Western Frisian","Wolof","Xhosa","Yiddish","Yoruba","Zhuang","Zulu"
+].sort();
 
   const [book, setBook] = useState(null);
   const [form, setForm] = useState({
@@ -192,7 +205,16 @@ export default function BookForm({ bookId }) {
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Input name="title" placeholder="Title" value={form.title} onChange={handleChange} onBlur={handleChange} error={errors.title} />
           <Input name="author" placeholder="Author" value={form.author} onChange={handleChange} onBlur={handleChange} error={errors.author} />
-          <Input name="language" placeholder="Language" value={form.language} onChange={handleChange} onBlur={handleChange} error={errors.language} />
+          <select name="language"
+              className="border border-gray-400 rounded p-2 w-full" 
+              value={form.language}
+              onChange={handleChange}
+              onBlur={handleChange}>
+              
+            <option value=''> select language </option>
+            {languages.map(lg =><option key={lg} value={lg}>{lg}</option> )}
+          </select>
+          
           <Input name="pageNumbers" type="number" placeholder="Pages" value={form.pageNumbers} onChange={handleChange} onBlur={handleChange} error={errors.pageNumbers} />
 
           {/* Genre Selector */}
