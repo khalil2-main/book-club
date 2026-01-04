@@ -12,10 +12,11 @@ import AdminRoute from "./components/AdminRoute";
 import NotFound from "./pages/Notfound";
 import { Toaster } from "react-hot-toast";
 import BooksPage from "./pages/BooksPage";
-import BookInfo from "./pages/BookInfo";
+
 import EditBookPage from "./pages/EditBookPage";
 import ProfilePage from "./pages/profilePage";
 import EditProfilePage from "./pages/EditProfilePage";
+import BookDetailsPage from "./pages/bookDetailsPage";
 
 const App = () => {
   return (
@@ -57,7 +58,7 @@ const App = () => {
         {/* books related routes */}
        
         <Route path='books' element={<BooksPage/>}></Route>
-        <Route path='books/:id' element={<BookInfo/>}></Route>
+        <Route path='books/:id' element={<BookDetailsPage/>}></Route>
        <Route path="books/add" element={<ProtectedRoute> <AddBook/> </ProtectedRoute>}></Route>
        <Route path="books/:id/edit" element={<ProtectedRoute> <EditBookPage/> </ProtectedRoute>}></Route>
 
