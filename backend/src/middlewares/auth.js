@@ -24,7 +24,30 @@ const requireAuth= (req,res,next)=>{
      res.status(401).send('your token is exprired')
   }
 }
+// optional auth
+const requireAuthOptional=(req,res,next)=>{
+  const token=req.cookies.accessToken;
 
+  if(token){
+    jwt.verify(token,process.env.TOKEN_KEY_SECRET,(err, decodedToken)=>{
+      //if token isn't valid
+      if(err){
+        console.log('console error\n'+ err);
+        return res.status(401).send('your token is not valid')
+      }
+      else{
+       
+        req.userId=decodedToken.id
+        next();
+      }
+    })
+  }
+  //if cookie is expired
+  else{
+    req.userId=null
+    next();
+  }
+}
 // admin authentication
 const adminAuth= async(req,res, next)=>{
   
@@ -70,4 +93,4 @@ const adminOrEditorAuth = async (req, res, next) => {
   }
 };
 
-module.exports={requireAuth, adminAuth, adminOrEditorAuth}
+module.exports={requireAuth, adminAuth, adminOrEditorAuth, requireAuthOptional}
