@@ -3,6 +3,8 @@ import api from "../api/axiosInterceptor";
 import noImage from "../assets/images/add.png";
 import Input from "../components/Input";
 import { useNavigate } from "react-router-dom";
+import ImageDropZone from "./ImageDropZone";
+
 
 export default function BookForm({ bookId }) {
   const navigate = useNavigate();
@@ -127,12 +129,7 @@ export default function BookForm({ bookId }) {
     setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
-    setForm(prev => ({ ...prev, image: file }));
-  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -195,12 +192,21 @@ export default function BookForm({ bookId }) {
         <h2 className="text-3xl font-bold mb-6">{book ? "Edit Book" : "Add a New Book"}</h2>
 
         {/* Cover Upload */}
-        <div className="mb-6">
-          <label htmlFor="coverUpload" className="cursor-pointer">
-            <img src={preview} alt="Cover Preview" className="w-40 h-56 object-cover rounded shadow" />
-          </label>
-          <input id="coverUpload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-        </div>
+          <div className="mb-6">
+    <ImageDropZone
+    
+      value={preview}
+      onChange={(file) => {
+        setPreview(URL.createObjectURL(file));
+        setForm((prev) => ({ ...prev, image: file }));
+         
+      }}
+       className="w-40 h-56 object-cover rounded shadow"
+      previewClassName="w-40 h-56 object-cover rounded shadow"
+      error={errors.image}
+    />
+  </div>
+
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Input name="title" placeholder="Title" value={form.title} onChange={handleChange} onBlur={handleChange} error={errors.title} />
