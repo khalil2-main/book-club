@@ -5,8 +5,8 @@ import api from "../api/axiosInterceptor";
 import noImage from "../assets/images/default_book_cover.jpg";
 import { useAuth } from "../context/AuthContext";
 import useConfirmDelete from "../Hooks/ConfirmDelete";
-import { Stars } from "../components/Stars";
-import Review from "../components/Review";
+import { Stars } from "./Stars";
+import Review from "./Review";
 
 /* ---------- Info row component ---------- */
 const InfoRow = ({ label, children }) => (
