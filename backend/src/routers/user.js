@@ -7,7 +7,7 @@ const validate = require('../middlewares/validate');
 
 const { matchedData, validationResult}= require('express-validator')
 const {updateUserValidator, isParamValidator}= require('../validators/UservalidationSchema');
-const { hashPassword } = require('../utils/helpers');
+const {getUserFavorites, getUserCurrentlyReading}= require('../utils/bookUtils')
 const { adminAuth}= require('../middlewares/auth');
 const creatUploader= require('../middlewares/upload')
 
@@ -314,14 +314,7 @@ router.get('/books/favorites/:id', isParamValidator, async (req, res) => {
   try {
     const userId = req.params.id;
 
-    const user = await User.findById(userId).populate('books.bookId');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const favoriteBooks = user.books
-      .filter(book => book.favorite)
-      .map(book => book.bookId);
+    const favoriteBooks = await getUserFavorites(userId);
 
     if (favoriteBooks.length === 0) {
       return res.status(404).json({ message: 'No favorite books found' });
@@ -330,36 +323,41 @@ router.get('/books/favorites/:id', isParamValidator, async (req, res) => {
     res.status(200).json({ favoriteBooks });
 
   } catch (err) {
+    if (err.message === 'User not found') {
+      return res.status(404).json({ message: err.message });
+    }
+
     console.error(err);
+    
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 router.get('/books/currentlyReading/:id', async (req, res) => {
   try {
     const userId = req.params.id;
 
-    const user = await User.findById(userId).populate('books.bookId');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    
 
-    const readingBooks = user.books
-      .filter(book => book.currentlyReading)
-      .map(book => book.bookId);
-
-    if (readingBooks.length === 0) {
+    const readingBooks = await getUserCurrentlyReading(userId);
+    if (!readingBooks ||readingBooks.length === 0) {
       return res.status(404).json({ message: "Haven't started reading yet" });
     }
 
     res.status(200).json({ readingBooks });
 
   } catch (err) {
+     if (err.message === 'User not found') {
+      return res.status(404).json({ message: err.message });
+    }
+
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 router.get('/CreatedBooks/:id', async (req, res) => {
   try {
