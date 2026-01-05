@@ -15,6 +15,40 @@ const getUserlikedBooks = async (userId) => {
 
 };
 
+const mongoose = require('mongoose');
+
+const getUserReviews = async (userId) => {
+  // Let Mongoose cast the ID here
+  const user = await User.findById(userId).select('_id');
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return await Book.aggregate([
+    {
+      $match: {
+        "reviews.userId": user._id
+      }
+    },
+    {
+      $project: {
+        
+        title: 1,
+        author: 1,
+        reviews: {
+          $filter: {
+            input: "$reviews",
+            as: "review",
+            cond: { $eq: ["$$review.userId", user._id] }
+          }
+        }
+      }
+    }
+  ]);
+};
+
+
 // ---------- Get User Favorite Books ----------
 const getUserFavorites = async (userId) => {
   const user = await User.findById(userId).populate('books.bookId');
@@ -118,7 +152,8 @@ const getRecommendations = async (userId) => {
 
 module.exports = {
   getUserFavorites,
-
+  getUserlikedBooks,
   getUserCurrentlyReading,
  getRecommendations,
+ getUserReviews
 };
