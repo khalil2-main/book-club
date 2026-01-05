@@ -7,7 +7,7 @@ import SideImage from "./sideimage";
 import Input from "./Input";
 import { useAuth } from "../context/AuthContext";
 import noImage from "../assets/images/no-picture.png";
-
+import ImageDropZone from "./ImageDropZone";
 const letterRegex = /^[\p{L}\p{M} ]+$/u;
 
 const EditProfile = ({ mode }) => {
@@ -171,22 +171,21 @@ const EditProfile = ({ mode }) => {
             </button>
           </div>
 
-          <div className="mb-6 flex justify-center">
-            <label className="cursor-pointer">
-              <img
-                src={preview}
-                alt="Profile"
-                className="h-28 w-28 rounded-full border object-cover"
-              />
-              <input
-                type="file"
-                name="image"
-                accept="image/*"
-                hidden
-                onChange={handleChange}
-              />
-            </label>
-          </div>
+          
+            <ImageDropZone
+                
+                  value={preview}
+                  onChange={(file) => {
+                    setPreview(URL.createObjectURL(file));
+                    setForm((prev) => ({ ...prev, image: file }));
+                     
+                  }}
+                   className="w-full h-56 object-cover rounded "
+                  previewClassName="h-28 w-28 rounded-full border object-cover"
+                  previewAlign="center"
+                  error={errors.image}
+                />
+        
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex gap-4">
