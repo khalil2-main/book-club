@@ -67,7 +67,7 @@ export default function BooksPage() {
         {/* Add Book button */}
         <div className="w-full flex justify-end my-4">
           <button
-            onClick={() => navigate('/books/add')}
+            onClick={() => navigate('/book/add')}
             className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-xl shadow hover:bg-indigo-700 transition"
           >
             Add A New Book

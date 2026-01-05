@@ -11,7 +11,7 @@ const BookCard = ({ book }) => {
 
   return (
     <Link
-      to={`/books/${book._id}`}
+      to={`/book/${book._id}`}
       className="w-48 flex-shrink-0 bg-white rounded-lg shadow p-3"
     >
       <div className="w-full h-56 bg-gray-100 rounded overflow-hidden flex items-center justify-center">

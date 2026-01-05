@@ -182,7 +182,7 @@ export default function BookInfo() {
           {(admin || editor) && (
             <div className="flex space-x-3">
               <Link
-                to={`/books/${id}/edit`}
+                to={`/book/${id}/edit`}
                 className="px-4 py-2 bg-white border text-indigo-600 rounded"
               >
                 Edit
