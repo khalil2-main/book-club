@@ -59,10 +59,10 @@ const App = () => {
         {/* books related routes */}
        
         <Route path='books' element={<BooksPage/>}></Route>
-        <Route path='books/:id' element={<BookDetailsPage/>}></Route>
-       <Route path="books/add" element={<ProtectedRoute> <AddBook/> </ProtectedRoute>}></Route>
-       <Route path="books/:id/edit" element={<ProtectedRoute> <EditBookPage/> </ProtectedRoute>}></Route>
-       <Route path="books/recommendations" element={<ProtectedRoute> <RecommendationsPage/> </ProtectedRoute>} ></Route>
+        <Route path='book/:id' element={<BookDetailsPage/>}></Route>
+       <Route path="book/add" element={<ProtectedRoute> <AddBook/> </ProtectedRoute>}></Route>
+       <Route path="book/:id/edit" element={<ProtectedRoute> <EditBookPage/> </ProtectedRoute>}></Route>
+       <Route path="book/recommendations" element={<ProtectedRoute> <RecommendationsPage/> </ProtectedRoute>} ></Route>
 
         <Route path="*" element={<NotFound/>} ></Route>
       </Routes>
