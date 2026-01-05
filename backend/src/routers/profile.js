@@ -2,7 +2,7 @@ const {Router}=require('express');
 const User= require('./../models/userModel');
 const Book = require('./../models/bookModel');
 const validate = require('../middlewares/validate');
-const { getUserCurrentlyReading, getUserFavorites,getRecommendations}= require('../utils/bookUtils')
+const { getUserCurrentlyReading, getUserFavorites,getRecommendations, getUserReviews}= require('../utils/bookUtils')
 const { isParamValidator}= require('../validators/UservalidationSchema');
 const router = Router();
 
@@ -135,14 +135,13 @@ router.get('/books/currentlyReading/:id', async (req, res) => {
   try {
     const userId = req.params.id;
 
-    
 
     const readingBooks = await getUserCurrentlyReading(userId);
     if (!readingBooks ||readingBooks.length === 0) {
       return res.status(404).json({ message: "Haven't started reading yet" });
     }
 
-    res.status(200).json({ readingBooks });
+    return res.status(200).json({ readingBooks });
 
   } catch (err) {
      if (err.message === 'User not found') {
@@ -174,6 +173,28 @@ router.get('/CreatedBooks/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+router.get('/books/reviews/:id',isParamValidator,  async (req, res)=>{
+  try{
+    const userId = req.params.id;
+    const reviewedBooks= await getUserReviews(userId);
+    if(!reviewedBooks|| reviewedBooks.lenght===0){
+       return res.status(404).json({ message: "Haven't submit a review yet" });
+    }
+      return res.status(200).json({ reviewedBooks });
+
+  }
+  catch (err) {
+     if (err.message === 'User not found') {
+      return res.status(404).json({ message: err.message });
+    }
+
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+
+})
 
 router.get('/books/recommendations', async (req, res) => {
   try {
