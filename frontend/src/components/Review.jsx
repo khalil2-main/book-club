@@ -3,6 +3,7 @@ import { InteractiveStars } from "./InteractiveStars";
 import toast from "react-hot-toast";
 import api from "../api/axiosInterceptor";
 import defaulProfileImage from "../assets/images/no-picture.png";
+import { Link } from "react-router-dom";
 export default function Review({ review, bookId, mode = "other", onUpdate }) {
   const [editing, setEditing] = useState(mode === "self" && (!review || !review.Comment));
   const [comment, setComment] = useState(review?.Comment || "");
@@ -27,12 +28,14 @@ export default function Review({ review, bookId, mode = "other", onUpdate }) {
   return (
     <div className="p-4 border rounded-lg bg-white shadow-sm flex space-x-4">
       {/* User Profile */}
+     <Link to={`/profile/${review?.userId._id}`}>
       <img
         src={review?.userId?.profileImage || defaulProfileImage}
         alt={review?.userId?.firstname || "User"}
         className="w-12 h-12 rounded-full object-cover"
       />
 
+     </Link>
       <div className="flex-1">
         <div className="flex justify-between items-center">
           <p className="font-medium text-gray-700">
