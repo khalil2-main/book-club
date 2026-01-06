@@ -172,7 +172,7 @@ useEffect(() => {
 
          });
          
-         navigate(`/books/${res.data.book._id}`);
+         navigate(`/book/${res.data.book._id}`);
          
       }
       else {

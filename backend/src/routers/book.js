@@ -151,18 +151,17 @@ router.get('/:id',isParamValidator,requireAuthOptional,validate ,async (req, res
   }
 });
 //edit a book
-router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,adminOrEditorAuth,normalizeGenres,bookUpdateValidator,validate,async (req, res) => {
-    const { id } = req.params;
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const data = matchedData(req);
-    console.log({data})
+router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,
+adminOrEditorAuth,normalizeGenres,bookUpdateValidator,validate,async (req, res) => {
+    
 
     try {
+      const { id } = req.params;
+
+
+    const data = matchedData(req);
+ 
+
       const book = await Book.findById(id);
       if (!book) {
         return res.status(404).json({ error: "Book not found" });
@@ -191,10 +190,23 @@ router.patch('/:id',isParamValidator,upload.single('image'),requireAuth,adminOrE
       
       res.status(200).json({ message: "Book updated successfully", book: updatedBook });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Server error" , details: err});
+  if (err.code === 11000) {
+    // Duplicate key for author + title
+    if (err.keyPattern && err.keyPattern.author && err.keyPattern.title) {
+      return res.status(409).json({
+        message: "Validation failed",
+        errors: "This book is already regestered by another user."
+      });
+    } 
+    // Duplicate key for ISBN
+    else if (err.keyPattern && err.keyPattern.isbn) {
+      return res.status(409).json({
+        message: "Validation failed",
+        errors: "A book with this ISBN already exists."
+      });
     }
   }
+  }}
 );
 
 // add or edit a review
