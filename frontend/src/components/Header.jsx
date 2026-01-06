@@ -54,7 +54,7 @@ const Header = () => {
   const handleResultClick = (id) => {
     setSearch("");
     setShowResults(false);
-    navigate(`/books/${id}`);
+    navigate(`/book/${id}`);
   };
 
   useEffect(() => {

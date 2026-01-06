@@ -8,7 +8,7 @@ function NotFound() {
 
   return (
     <>
-    <title>404</title>
+      <title>404</title>
       <Header />
 
       <main className="min-h-screen bg-blue-50 flex items-center justify-center py-12">
@@ -21,7 +21,7 @@ function NotFound() {
               <h2 className="text-2xl font-semibold text-gray-700">Page Not Found</h2>
 
               <p className="text-gray-600">
-                Oups ! La page que vous cherchez n’existe pas ou a été déplacée.
+                Oops! The page you are looking for does not exist or has been moved.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-2 justify-center md:justify-start">
@@ -29,23 +29,16 @@ function NotFound() {
                   onClick={() => navigate("/")}
                   className="px-6 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition"
                 >
-                  Retour à l'accueil
-                </button>
-
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="px-6 py-2 bg-white text-indigo-600 border border-indigo-200 rounded-lg shadow hover:bg-indigo-50 transition"
-                >
-                  Tableau de bord
+                  Go Back Home
                 </button>
               </div>
 
               <div className="mt-6 text-gray-500 text-sm">
-                Si vous pensez que c’est une erreur, veuillez contacter le support.
+                If you think this is a mistake, please contact support.
               </div>
             </div>
 
-            
+            {/* Right Section */}
             <div className="w-full md:w-1/2">
               <SideImage />
             </div>

@@ -26,7 +26,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post('/refresh-token'); // 👉 proxied
+        await api.post('/refresh-token'); 
         processQueue(null);
         return api(originalRequest);
       } catch (err) {
