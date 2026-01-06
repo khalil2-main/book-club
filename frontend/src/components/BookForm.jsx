@@ -185,7 +185,7 @@ useEffect(() => {
 
       
     } catch (err) {
-      console.error(err);
+      console.error(err.response.data);
       setSubmitError(err?.response?.data?.errors || "Failed to save book");
     } finally {
       setLoading(false);
