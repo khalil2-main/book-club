@@ -108,15 +108,26 @@ router.post('/',upload.single('image'),requireAuth,normalizeGenres ,bookCreation
       });
 
     } catch (err) {
-        if (err.code === 11000) {
-        return res.status(409).json({
-          message: "Validation failed",
-          errors: "A book with this ISBN already exists."
-        });
-      }
-      console.error(err);
-      res.status(500).json({ error: "Server error", details: err.message});
+  if (err.code === 11000) {
+    // Duplicate key for author + title
+    if (err.keyPattern && err.keyPattern.author && err.keyPattern.title) {
+      return res.status(409).json({
+        message: "Validation failed",
+        errors: "This book is already regestered by another user."
+      });
+    } 
+    // Duplicate key for ISBN
+    else if (err.keyPattern && err.keyPattern.isbn) {
+      return res.status(409).json({
+        message: "Validation failed",
+        errors: "A book with this ISBN already exists."
+      });
     }
+  }
+
+  console.error(err);
+  res.status(500).json({ error: "Server error", details: err.message });
+}
 });
 //get book by id
 router.get('/:id',isParamValidator,requireAuthOptional,validate ,async (req, res) => {

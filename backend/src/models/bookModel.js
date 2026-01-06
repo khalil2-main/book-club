@@ -125,5 +125,8 @@ const bookSchema = new mongoose.Schema({
   }
 
 });
+// Compound index for unique author-title
+bookSchema.index({ author: 1, title: 1 }, { unique: true });
+
 
 module.exports = mongoose.model('Book', bookSchema);
