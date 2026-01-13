@@ -257,7 +257,14 @@ export default function BookInfo() {
                     {author}
                   </span>
                 </InfoRow>
-                <InfoRow label="Language">{language}</InfoRow>
+                <InfoRow label="Language"><span
+                    className="author-name cursor-pointer hover:underline hover:text-blue-800"
+                    onClick={() =>
+                      navigate(`/books?language=${encodeURIComponent(language)}`)
+                    }
+                  >
+                    {language}
+                  </span></InfoRow>
                 <InfoRow label="Pages">{pageNumbers ? `${pageNumbers} pages` : "—"}</InfoRow>
                 <InfoRow label="Year">{publishedYear}</InfoRow>
                 <InfoRow label="ISBN">{isbn}</InfoRow>

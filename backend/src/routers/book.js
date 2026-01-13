@@ -32,7 +32,8 @@ router.get('/top', async(req, res) => {
 router.get('/',pageValidator, validate, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const { title, author, genre } = req.query;
+    const { title, author, genre, language } = req.query;
+    // console.log("Query parameters: " + JSON.stringify(req.query));
     const query={}
     if(title){
       query.title={
@@ -40,11 +41,18 @@ router.get('/',pageValidator, validate, async (req, res) => {
         $options:'i'
       }
     }
-    if(author) query.author=author
+    if(author) query.author={
+        $regex: `^${author}`,
+        $options:'i'
+      }
      if(genre){
        const genresArray = genre.split(',').map(g => g.trim());
       query.genres = { $in: genresArray }
     }
+    if(language) query.language={
+        $regex: `^${language}`,
+        $options:'i'
+      }
 
     const skip = (page - 1) * limit;
 
@@ -71,11 +79,18 @@ router.get('/npage', async(req, res) => {
         $options:'i'
       }
     }
-    if(author) query.author=author
+    if(author) query.author={
+        $regex: `^${author}`,
+        $options:'i'
+      }
     if(genre){
        const genresArray = genre.split(',').map(g => g.trim());
       query.genres = { $in: genresArray }
     }
+    if(language) query.language={
+        $regex: `^${language}`,
+        $options:'i'
+      }
 
     const totalBooks = await Book.find(query).countDocuments()
     

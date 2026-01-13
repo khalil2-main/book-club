@@ -9,55 +9,33 @@ import BooksGrid from '../components/BooksGrid';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 
+
 export default function BooksPage() {
   const [searchParams] = useSearchParams();
 
-  const author = searchParams.get('author') || '';
+   const author = searchParams.get('author') || '';
   const title = searchParams.get('title') || '';
-  const genre= searchParams.get('genre') || ''
+  const genre = searchParams.get('genre') || '';
+  const language = searchParams.get('language') || '';
+
+
 
   const [books, setBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const res = await api.get(`/book`,{
-           params: {
-          page,
-          author,
-          title,
-          genre
-        }
-        });
-        setBooks(res.data.books);
-      } catch (error) {
-        console.error('Error fetching books:', error);
-      }
-    };
-
-    fetchBooks();
-  }, [page, author, title,genre]);
+ useEffect(() => {
+    api.get('/book', {
+      params: { page, author, title, genre, language }
+    }).then(res => setBooks(res.data.books));
+  }, [page, author, title, genre, language]);
 
   useEffect(() => {
-    try {
-      api.get('/book/npage',{
-        params: {
-          page,
-          author,
-          title,
-          genre
-        }
-      }).then((res) => {
-        setTotalPages(res.data.totalPages);
-      });
-    } catch (error) {
-      console.error('Error fetching total pages:', error);
-    }
-  }, []);
-
+    api.get('/book/npage', {
+      params: { page, author, title, genre, language }
+    }).then(res => setTotalPages(res.data.totalPages));
+  }, [page, author, title, genre, language]);
   return (
     <>
     <title>books</title>
