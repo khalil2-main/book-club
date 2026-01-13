@@ -71,7 +71,7 @@ router.get('/',pageValidator, validate, async (req, res) => {
 // Get number of pages
 router.get('/npage', async(req, res) => {
   try
-{ const { title, author ,genre} = req.query;
+{ const { title, author ,genre, language} = req.query;
     const query={}
     if(title){
       query.title={
