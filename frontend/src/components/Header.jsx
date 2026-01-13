@@ -4,8 +4,8 @@ import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 import noImage from "../assets/images/no-picture.png";
 import api from "../api/axiosInterceptor";
-import { Search } from "lucide-react";
-
+import { Search, Filter } from "lucide-react";
+import NavFilter from "./NavFilter";
 const Header = () => {
   const navigate = useNavigate();
   const { auth, admin, logout, user } = useAuth();
@@ -20,6 +20,7 @@ const Header = () => {
   const debounceRef = useRef(null);
   const searchRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [isNavOpen, setIsNavOpen] = useState(false); // Filter menu state
 
   useEffect(() => {
     if (!search.trim()) {
@@ -100,9 +101,16 @@ const Header = () => {
   };
 
   return (
+    <>
     <header className="w-full bg-indigo-400 shadow-md">
       <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3">
-
+         {/* Filter Button */}
+            <button
+              onClick={() => setIsNavOpen(true)}
+              className="bg-white text-indigo-600 p-2 rounded-xl shadow hover:bg-indigo-50"
+            >
+              <Filter className="w-5 h-5" />
+            </button>
         {/* Logo + Nav */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <div
@@ -214,6 +222,10 @@ const Header = () => {
 
       </div>
     </header>
+    {/* Sliding Filter Nav */}
+      <NavFilter isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />
+
+    </>
   );
 };
 
