@@ -6,26 +6,23 @@ import PageNav from '../components/pageNav';
 import api from '../api/axiosInterceptor'
 import Header from '../components/Header';
 import BooksGrid from '../components/BooksGrid';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-
+import { useSearchParams } from 'react-router-dom';
 
 
 export default function BooksPage() {
   const [searchParams] = useSearchParams();
+  
 
-   const author = searchParams.get('author') || '';
+  const page = parseInt(searchParams.get('page')) || 1;
+  const author = searchParams.get('author') || '';
   const title = searchParams.get('title') || '';
   const genre = searchParams.get('genre') || '';
   const language = searchParams.get('language') || '';
 
-
-
   const [books, setBooks] = useState([]);
-  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const navigate = useNavigate();
 
- useEffect(() => {
+  useEffect(() => {
     api.get('/book', {
       params: { page, author, title, genre, language }
     }).then(res => setBooks(res.data.books));
@@ -36,32 +33,19 @@ export default function BooksPage() {
       params: { page, author, title, genre, language }
     }).then(res => setTotalPages(res.data.totalPages));
   }, [page, author, title, genre, language]);
+
   return (
     <>
-    <title>books</title>
       <Header />
-      {/* Centered container */}
       <div className="max-w-6xl mx-auto px-4">
-        {/* Add Book button */}
-        <div className="w-full flex justify-end my-4">
-          <button
-            onClick={() => navigate('/book/add')}
-            className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-xl shadow hover:bg-indigo-700 transition"
-          >
-            Add A New Book
-          </button>
-        </div>
-
-        {/* Books Grid */}
         <BooksGrid books={books} />
-
-        {/* Pages navigator*/}
         <PageNav
           currentPage={page}
           totalPages={totalPages}
-          onPageChange={setPage}
+         
         />
       </div>
     </>
   );
 }
+
