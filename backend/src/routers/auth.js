@@ -121,7 +121,7 @@ router.post('/refresh-token', async (req, res) => {
 router.get('/check',(req,res)=>{
   const token=req.cookies.accessToken;
 
-  if (!token) return res.status(401).send({ auth: false });
+  if (!token) return res.status(200).send({ auth: false });
 
 
   jwt.verify(token, process.env.TOKEN_KEY_SECRET, (err,decodedToken)=>{
