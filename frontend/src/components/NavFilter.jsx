@@ -31,7 +31,7 @@ const NavFilter = ({ isOpen, onClose }) => {
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
-        const res = await api.get("/books", { // matches backend
+        const res = await api.get("/book", { 
           params: { author: authorSearch, page: 1 }
         });
         setAuthorResults(res.data.books.slice(0, 5));
@@ -95,6 +95,12 @@ const NavFilter = ({ isOpen, onClose }) => {
     const query = new URLSearchParams(queryObject).toString();
     navigate(`/books?${query}`);
     onClose();
+     setForm({
+    title: "",
+    language: "",
+    genres: []
+    });
+    setAuthorSearch("");
   };
 
   return (
