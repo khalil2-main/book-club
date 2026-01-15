@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import AdminUsers from "./pages/AdminUsers";
-import Dashboard from "./pages/Dashboard";
+
 import HomePage from "./pages/HomePage";
 
 import AddBook from "./pages/AddBook";
@@ -54,7 +54,7 @@ const App = () => {
         <Route path="profile/:id" element={<ProtectedRoute><ProfilePage mode="public"/></ProtectedRoute>}></Route>
          <Route path="profile/edit/:id" element={<ProtectedRoute><EditProfilePage mode="public"/></ProtectedRoute>}></Route>
 
-        <Route path="dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}></Route>
+       
         <Route path="admin" element={<AdminRoute><AdminUsers/></AdminRoute>}></Route>
         {/* books related routes */}
        

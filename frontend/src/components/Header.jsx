@@ -6,8 +6,12 @@ import noImage from "../assets/images/no-picture.png";
 import api from "../api/axiosInterceptor";
 import { Search, Filter } from "lucide-react";
 import NavFilter from "./NavFilter";
+import { useLocation } from "react-router-dom";
+
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { auth, admin, logout, user } = useAuth();
 
   const [openMenu, setOpenMenu] = useState(false);
@@ -124,18 +128,26 @@ const Header = () => {
           </div>
 
           <button
-            onClick={() => { navigate("/books"); setSearch(""); }}
-            className="text-white text-sm sm:text-base font-semibold hover:underline whitespace-nowrap"
-          >
+          onClick={() => { navigate("/books"); setSearch(""); }}
+          className={`text-white text-sm sm:text-base font-semibold whitespace-nowrap
+            ${location.pathname.startsWith("/books") && !location.pathname.includes("recommendations")
+              ? "underline underline-offset-4 decoration-2"
+              : "hover:underline"}
+          `}
+        >
             Books
           </button>
 
           {auth && (
-            <button
-              onClick={() => { navigate("/books/recommendations"); setSearch(""); }}
-              className="hidden sm:inline text-white text-sm sm:text-base font-semibold hover:underline whitespace-nowrap"
-            >
-              Recommended
+           <button
+          onClick={() => { navigate("/books/recommendations"); setSearch(""); }}
+          className={`hidden sm:inline text-white text-sm sm:text-base font-semibold whitespace-nowrap
+            ${location.pathname === "/books/recommendations"
+              ? "underline underline-offset-4 decoration-2"
+              : "hover:underline"}
+          `}
+        >
+              Recommended for you
             </button>
           )}
         </div>
@@ -193,7 +205,7 @@ const Header = () => {
 
               {openMenu && (
                 <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg py-2 z-50">
-                  <button onClick={() => { navigate("/dashboard"); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Dashboard</button>
+                  
                   <button onClick={() => { navigate("/profile/me"); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
                   {admin && (
                     <button onClick={() => { navigate("/admin"); setOpenMenu(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Admin</button>
