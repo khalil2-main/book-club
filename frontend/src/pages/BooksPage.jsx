@@ -36,6 +36,7 @@ export default function BooksPage() {
 
   return (
     <>
+    <title>Books - Book Club</title>
       <Header />
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between items-center my-4">
