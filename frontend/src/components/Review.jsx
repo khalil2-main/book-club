@@ -18,7 +18,7 @@ export default function Review({ review, bookId, mode = "other", onUpdate }) {
       });
       toast.success("Review saved!");
       setEditing(false);
-      onUpdate?.(); // refresh book info
+      onUpdate?.(); 
     } catch (err) {
       console.error(err);
       toast.error("Failed to save review");

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams,} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import api from "../api/axiosInterceptor";
 import noImage from "../assets/images/no-picture.png";
 import BookCard from "./BookCard";
@@ -73,9 +73,9 @@ export default function UserProfile({ mode }) {
   if (!user) return <p>User not found</p>;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", padding: 24 }}>
+    <div className="flex min-h-screen p-6 gap-6">
       {/* LEFT PANEL */}
-      <div style={{ flex: 2, paddingRight: 16 }}>
+      <div className="flex-[2]">
         <BooksNavbar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -93,13 +93,7 @@ export default function UserProfile({ mode }) {
             ))}
           </div>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-              gap: 16,
-            }}
-          >
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
             {books.map((book) => (
               <BookCard key={book._id} book={book} />
             ))}
@@ -108,17 +102,7 @@ export default function UserProfile({ mode }) {
       </div>
 
       {/* RIGHT PANEL */}
-      <div
-        style={{
-          flex: 1,
-          position: "sticky",
-          top: 24,
-          padding: 16,
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          height: "fit-content",
-        }}
-      >
+      <div className="flex-1 sticky top-6 h-fit border border-gray-300 rounded-lg p-4">
         <UserInfoPanel user={user} showEmail={mode === "self"} />
       </div>
     </div>
@@ -131,23 +115,19 @@ export default function UserProfile({ mode }) {
 
 function UserInfoPanel({ user, showEmail }) {
   return (
-    <div>
+    <div className="flex flex-col items-start">
       <img
         src={user.profileImage || noImage}
         alt="Profile"
-        style={{
-          width: 120,
-          height: 120,
-          borderRadius: "50%",
-          objectFit: "cover",
-          marginBottom: 16,
-        }}
+        className="w-30 h-30 rounded-full object-cover mb-4"
       />
-      <h2>
+      <h2 className="text-xl font-semibold">
         {user.firstname} {user.lastname}
       </h2>
-      {showEmail && <p>Email: {user.email}</p>}
-      <p>Birthday: {new Date(user.birthday).toLocaleDateString()}</p>
+      {showEmail && <p className="text-sm text-gray-600">Email: {user.email}</p>}
+      <p className="text-sm text-gray-600">
+        Birthday: {new Date(user.birthday).toLocaleDateString()}
+      </p>
     </div>
   );
 }
@@ -165,19 +145,18 @@ function BooksNavbar({ activeTab, setActiveTab, user }) {
   ];
 
   return (
-    <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
+    <div className="flex gap-4 mb-6">
       {tabs.map((tab) => (
         <button
           key={tab.key}
           onClick={() => setActiveTab(tab.key)}
-          style={{
-            padding: "8px 16px",
-            borderBottom:
-              activeTab === tab.key ? "2px solid black" : "none",
-            background: "transparent",
-            cursor: "pointer",
-            fontWeight: activeTab === tab.key ? "bold" : "normal",
-          }}
+          className={`px-4 py-2 border-b-2 transition
+            ${
+              activeTab === tab.key
+                ? "border-black font-bold"
+                : "border-transparent text-gray-500 hover:text-black"
+            }
+          `}
         >
           {tab.label}
         </button>
@@ -185,8 +164,6 @@ function BooksNavbar({ activeTab, setActiveTab, user }) {
     </div>
   );
 }
-
-
 
 /* =========================
    EMPTY STATES

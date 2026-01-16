@@ -93,7 +93,7 @@ export default function BookInfo() {
 
   useEffect(() => {
     fetchBook();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [id]);
   useEffect(() => {
     if (book?.title) {

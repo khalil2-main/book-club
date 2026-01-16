@@ -5,7 +5,6 @@ export const Stars = ({ value = 0 }) => {
   const steps = Math.round(value * 2);
   const percent = steps * 5;
 
-  // Path to the rating image
   const ratingImage = `/images/ratings/rating-${percent}.png`;
 
   return (
@@ -13,7 +12,7 @@ export const Stars = ({ value = 0 }) => {
       <img
         src={ratingImage}
         alt="stars"
-        className="w-24 h-10 object-contain" // smaller size
+        className="w-24 h-10 object-contain"
       />
 
       {/* Numeric display */}
