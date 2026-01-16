@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/axiosInterceptor";
 import Header from "../components/Header";
-
 import { useNavigate } from "react-router-dom";
 import useConfirmDelete from "../Hooks/ConfirmDelete";
 
@@ -16,23 +15,21 @@ const AdminUsers = () => {
     email: "",
     role: "",
   });
-  const navigate= useNavigate();
-  const confirmDelete= useConfirmDelete()
+  const navigate = useNavigate();
+  const confirmDelete = useConfirmDelete();
+
   // ==============================
   // FETCH USERS (with filters)
   // ==============================
   const fetchUsers = async (params = {}) => {
     setLoading(true);
     try {
-      const res = await api.get("/user", {
-        params,
-        
-      });
+      const res = await api.get("/user", { params });
       setUsers(res.data);
       setError("");
     } catch (err) {
       console.error("Fetch users error:", err);
-      setError("Impossible de récupérer les comptes.");
+      setError("Unable to fetch user accounts.");
     } finally {
       setLoading(false);
     }
@@ -63,15 +60,14 @@ const AdminUsers = () => {
   // ==============================
   // DELETE USER
   // ==============================
-const handleDelete = (id) => {
-  confirmDelete({
-    onStart:()=>setDeleting(true),
-    endpoint:`/user/${id}`,
-    onSuccess:() => setUsers((prev) => prev.filter((u) => u._id !== id)),
-    onFinally:()=>setDeleting(false)
-  })
-};
-
+  const handleDelete = (id) => {
+    confirmDelete({
+      onStart: () => setDeleting(true),
+      endpoint: `/user/${id}`,
+      onSuccess: () => setUsers((prev) => prev.filter((u) => u._id !== id)),
+      onFinally: () => setDeleting(false),
+    });
+  };
 
   // ==============================
   // RESET FILTERS
@@ -88,7 +84,7 @@ const handleDelete = (id) => {
 
   return (
     <>
-    <title>admin page</title>
+      <title>Admin Page</title>
       <Header />
 
       <main className="min-h-screen bg-blue-50 py-8">
@@ -96,64 +92,46 @@ const handleDelete = (id) => {
           <div className="bg-white rounded-2xl shadow p-6">
             {/* HEADER */}
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">
-                Administration — Utilisateurs
-              </h2>
-              <div className="text-sm text-gray-500">
-                {users.length} comptes
-              </div>
+              <h2 className="text-2xl font-semibold">Administration — Users</h2>
+              <div className="text-sm text-gray-500">{users.length} accounts</div>
             </div>
 
             {/* SEARCH FORM */}
-            <form
-              onSubmit={handleSearch}
-              className="flex flex-wrap gap-3 mb-6"
-            >
+            <form onSubmit={handleSearch} className="flex flex-wrap gap-3 mb-6">
               <input
                 className="border px-3 py-2 rounded w-40"
-                placeholder="Prénom"
+                placeholder="First Name"
                 value={query.firstname}
-                onChange={(e) =>
-                  setQuery({ ...query, firstname: e.target.value })
-                }
+                onChange={(e) => setQuery({ ...query, firstname: e.target.value })}
               />
 
               <input
                 className="border px-3 py-2 rounded w-40"
-                placeholder="Nom"
+                placeholder="Last Name"
                 value={query.lastname}
-                onChange={(e) =>
-                  setQuery({ ...query, lastname: e.target.value })
-                }
+                onChange={(e) => setQuery({ ...query, lastname: e.target.value })}
               />
 
               <input
                 className="border px-3 py-2 rounded w-64"
                 placeholder="Email"
                 value={query.email}
-                onChange={(e) =>
-                  setQuery({ ...query, email: e.target.value })
-                }
+                onChange={(e) => setQuery({ ...query, email: e.target.value })}
               />
 
               <select
                 className="border px-3 py-2 rounded"
                 value={query.role}
-                onChange={(e) =>
-                  setQuery({ ...query, role: e.target.value })
-                }
+                onChange={(e) => setQuery({ ...query, role: e.target.value })}
               >
-                <option value="">Tous</option>
+                <option value="">All</option>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
               </select>
 
               <div className="flex items-center gap-2">
-                <button
-                  type="submit"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded"
-                >
-                  Rechercher
+                <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded">
+                  Search
                 </button>
 
                 <button
@@ -161,28 +139,23 @@ const handleDelete = (id) => {
                   onClick={handleReset}
                   className="px-4 py-2 border rounded"
                 >
-                  Réinitialiser
+                  Reset
                 </button>
               </div>
             </form>
 
             {/* CONTENT */}
             {loading ? (
-              <div className="text-center py-8">Chargement...</div>
+              <div className="text-center py-8">Loading...</div>
             ) : error ? (
               <div className="text-red-600">{error}</div>
             ) : (
               <div className="space-y-3">
                 {users.length === 0 ? (
-                  <div className="p-6 text-center text-gray-500">
-                    Aucun utilisateur trouvé
-                  </div>
+                  <div className="p-6 text-center text-gray-500">No users found</div>
                 ) : (
                   users.map((u) => (
-                    <div
-                      key={u._id}
-                      className="flex items-center justify-between p-4 border rounded"
-                    >
+                    <div key={u._id} className="flex items-center justify-between p-4 border rounded">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold">
                           {(u.firstname || "")[0]}
@@ -193,18 +166,14 @@ const handleDelete = (id) => {
                           <div className="font-medium">
                             {u.firstname} {u.lastname}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {u.email}
-                          </div>
+                          <div className="text-sm text-gray-500">{u.email}</div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
                         <span
                           className={`px-2 py-1 rounded text-sm ${
-                            u.admin
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-700"
+                            u.admin ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
                           }`}
                         >
                           {u.admin ? "Admin" : "User"}
@@ -215,15 +184,15 @@ const handleDelete = (id) => {
                           disabled={deleting}
                           className="bg-blue-500 text-white px-3 py-1 rounded"
                         >
-                          view
+                          View
                         </button>
-                        {/*delete use button*/}
+
                         <button
                           onClick={() => handleDelete(u._id)}
                           disabled={deleting}
                           className="bg-red-500 text-white px-3 py-1 rounded"
                         >
-                          {deleting? 'deleting':'delete'}
+                          {deleting ? "Deleting" : "Delete"}
                         </button>
                       </div>
                     </div>
